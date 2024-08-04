@@ -1,10 +1,14 @@
 
-""" Game and Map setup """
+""" Game Window and Map setup """
 
 WIDTH    = 1280	
-HEIGTH   = 720
+HEIGT   = 720
 FPS      = 60
-TILESIZE = 64
+TILESIZE = 32
+
+
+
+
 
 WORLD_MAP = [
 ['x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x','x'],

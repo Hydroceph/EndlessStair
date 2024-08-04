@@ -2,8 +2,8 @@
 """ Class which handles the drawing, updating and interaction between all the sprite groups """
 
 import pygame 
-from settings import *
-from doodad import Doodad
+from map import TILESIZE, WORLD_MAP
+from prop import Prop
 from player import Player
 from debug import debug
 
@@ -23,7 +23,7 @@ class Level:
 				x = col_index * TILESIZE
 				y = row_index * TILESIZE
 				if col == 'x':
-					Doodad((x,y),[self.visible_sprites,self.obstacle_sprites])
+					Prop((x,y),[self.visible_sprites,self.obstacle_sprites])
 				if col == 'p':
 					self.player = Player((x,y), [self.visible_sprites], self.obstacle_sprites)
 
@@ -33,7 +33,7 @@ class Level:
 		self.visible_sprites.update()
 
 # Finds the vector distance of the player from the centre point of the window, and takes that offset away from each sprite so player stays central in camera
-# also adds y sorting of sprites, so the sprite that is below is in front (allows player to stand behind or in front of doodads)
+# also adds y sorting of sprites, so the sprite that is below is in front (allows player to stand behind or in front of props)
 class Camera(pygame.sprite.Group):
 	def __init__(self):
 		super().__init__()

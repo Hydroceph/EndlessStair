@@ -2,7 +2,6 @@
 """ Player controlled sprite """
 
 import pygame 
-from settings import *
 
 class Player(pygame.sprite.Sprite):
 	def __init__(self,pos,groups,obstacle_sprites):
@@ -48,7 +47,6 @@ class Player(pygame.sprite.Sprite):
 		self.rect_collision.x += self.direction.x * speed
 		self.collision('horizontal')
 		self.rect.center = self.rect_collision.center
-
 
 	def collision(self,direction):
 		# up/down collision
