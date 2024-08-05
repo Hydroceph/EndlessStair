@@ -1,11 +1,11 @@
 import pygame, sys
-from map import WIDTH, HEIGT, FPS
+from map import WIDTH, HEIGHT, FPS
 from level import Level
 
 class Game:
 	def __init__(self):
 		pygame.init()
-		self.screen = pygame.display.set_mode((WIDTH,HEIGT))
+		self.screen = pygame.display.set_mode((WIDTH,HEIGHT))
 		pygame.display.set_caption('Hydroceph')
 		self.clock = pygame.time.Clock()
 
