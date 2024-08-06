@@ -42,7 +42,8 @@ def cut_tileset(path):
 dung_room_0_layout = {
     'floor': read_map_csv('./map/dungeon/room_0/dung_room_0_floor.csv'),
     'pillars': read_map_csv('./map/dungeon/room_0/dung_room_0_pillars.csv'),
-    'lights': read_map_csv('./map/dungeon/room_0/dung_room_0_lights.csv'),
+    'invis_walls': read_map_csv('./map/dungeon/room_0/dung_room_0_invis_walls.csv'),
+    'back_props_des': read_map_csv('./map/dungeon/room_0/dung_room_0_back_props_des.csv'),
     'back_props_1': read_map_csv('./map/dungeon/room_0/dung_room_0_back_props_1.csv'),
     'back_props_2': read_map_csv('./map/dungeon/room_0/dung_room_0_back_props_2.csv'),
     'interact': read_map_csv('./map/dungeon/room_0/dung_room_0_interact.csv'),

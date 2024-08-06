@@ -12,7 +12,7 @@ class Player(pygame.sprite.Sprite):
 		self.rect_collision = self.rect.inflate(-5, -20)
 
 		self.direction = pygame.math.Vector2()
-		self.speed = 5
+		self.speed = 10
 
 		self.obstacle_sprites = obstacle_sprites
 
