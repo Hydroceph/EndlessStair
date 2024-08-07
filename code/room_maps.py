@@ -12,6 +12,8 @@ FPS = 60
 TILESET_TILESIZE = 16
 TILESIZE = 64
 
+fog_colour = (20,20,20)
+
 
 def read_map_csv(path):
     room_map = []

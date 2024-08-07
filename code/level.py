@@ -2,7 +2,7 @@
 """ Class which handles the drawing, updating and interaction between all the sprite groups """
 
 import pygame 
-from room_maps import TILESIZE, dung_room_0_layout, dung_room_0_graphics
+from room_maps import TILESIZE, WIDTH, HEIGHT, fog_colour, dung_room_0_layout, dung_room_0_graphics
 from prop import Prop
 from player import Player
 from debug import debug
@@ -73,7 +73,7 @@ class Camera(pygame.sprite.Group):
 		self.midpoint_y = self.display_surface.get_size()[1] // 2
 		self.offset = pygame.math.Vector2()
 
-		# create floor (and light) seperately as image, so it is always on bottom (and does not interact with the y sort)
+		# create floor, light seperately as image, so it is always on bottom (and does not interact with the y sort)
 		self.floor_surface = pygame.image.load('./map/dungeon/room_0/dung_room_0_floor.png')
 		self.floor_surface = pygame.transform.scale(self.floor_surface, (self.floor_surface.get_width() * 4, self.floor_surface.get_height() * 4))
 		self.floor_rect = self.floor_surface.get_rect(topleft = (0,0))
@@ -83,6 +83,16 @@ class Camera(pygame.sprite.Group):
 		self.floor_light_surface_alpha = 150
 		self.floor_light_rect = self.floor_light_surface.get_rect(topleft = (0,0))
 		self.floor_light_alpha_check = 1
+
+		# FOW lighting effect
+		self.fow_surf = pygame.Surface((WIDTH,HEIGHT))
+		self.fow_surf.fill((fog_colour))
+		self.fow_light_surf = pygame.image.load('./map/dungeon/FOW_light.png').convert_alpha()
+		self.fow_light_surf = pygame.transform.scale(self.fow_light_surf, (500,500))
+		self.fow_light_rect = self.fow_light_surf.get_rect()
+		self.fow_light_rect.center = (self.midpoint_x, self.midpoint_y)
+		self.fow_surf.blit(self.fow_light_surf, self.fow_light_rect)
+		self.fog = 1
 
 	def offset_draw(self, player):
 		# find player distance from midpoint of screen
@@ -97,6 +107,7 @@ class Camera(pygame.sprite.Group):
 		floor_offset = self.floor_rect.topleft - self.offset 
 		self.display_surface.blit(self.floor_surface, floor_offset)
 
+		# drawing the floor light, with flashing light
 		if self.floor_light_surface_alpha <= 130:
 			self.floor_light_surface_alpha = 130
 			self.floor_light_alpha_check = 1
@@ -108,6 +119,7 @@ class Camera(pygame.sprite.Group):
 			self.floor_light_surface_alpha += 5
 		else:
 			self.floor_light_surface_alpha -= 5
+
 		self.floor_light_surface.set_alpha(self.floor_light_surface_alpha)
 		floor_light_offset = self.floor_light_rect.topleft - self.offset 
 		self.display_surface.blit(self.floor_light_surface, floor_light_offset)
@@ -115,7 +127,7 @@ class Camera(pygame.sprite.Group):
 		# make new sprite rectangle to blit image onto, which will be in different position based on offset above
 		for sprite in sorted(self.sprites(), key = self.y_sort):
 			if isinstance(sprite, Player):
-				sprite_offset = sprite_offset = sprite.rect.center - self.offset - offset_fix - player_offset_fix
+				sprite_offset = sprite.rect.center - self.offset - offset_fix - player_offset_fix
 			else:
 				sprite_offset = sprite.rect.center - self.offset - offset_fix
 			self.display_surface.blit(sprite.image, sprite_offset)
@@ -124,6 +136,15 @@ class Camera(pygame.sprite.Group):
 			# BLACK = (0,0,0)
 			# test_surface.fill(BLACK)
 			# self.display_surface.blit(test_surface, sprite_offset)
+
+		# drawing the FOW
+		if self.fog == 1:
+			self.display_surface.blit(self.fow_surf, (0,0), special_flags = pygame.BLEND_MULT)
+	
+
+
+
+
 
 
 	def y_sort(self, to_sort):
