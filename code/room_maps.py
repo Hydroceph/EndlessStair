@@ -9,7 +9,7 @@ from os import walk
 WIDTH = 1280	
 HEIGHT = 720
 FPS = 60
-tileset_tilesize = 16
+TILESET_TILESIZE = 16
 TILESIZE = 64
 
 
@@ -21,22 +21,33 @@ def read_map_csv(path):
             room_map.append(list(row))
         return room_map
 
-def cut_tileset(path):
+def cut_tileset(path, TILESET_TILESIZE = 16):
     surface = pygame.image.load(path)#.convert_alpha()
-    tile_num_x = int(surface.get_size()[0] / tileset_tilesize)
-    tile_num_y = int(surface.get_size()[1] / tileset_tilesize)
+    tile_num_x = int(surface.get_size()[0] / TILESET_TILESIZE)
+    tile_num_y = int(surface.get_size()[1] / TILESET_TILESIZE)
 
     cut_tiles = []
     for row in range(tile_num_y):
         for col in range(tile_num_x):
-            x = col * tileset_tilesize
-            y = row * tileset_tilesize
-            new_surf = pygame.Surface((tileset_tilesize, tileset_tilesize),flags = pygame.SRCALPHA)
-            new_surf.blit(surface, (0,0), pygame.Rect(x, y, tileset_tilesize, tileset_tilesize))
+            x = col * TILESET_TILESIZE
+            y = row * TILESET_TILESIZE
+            new_surf = pygame.Surface((TILESET_TILESIZE, TILESET_TILESIZE),flags = pygame.SRCALPHA)
+            new_surf.blit(surface, (0,0), pygame.Rect(x, y, TILESET_TILESIZE, TILESET_TILESIZE))
             new_surf = pygame.transform.scale_by(new_surf, 4)
             cut_tiles.append(new_surf)
     
     return cut_tiles
+
+def png_collection(path):
+	surface_list = []
+
+	for _,__,img_files in walk(path):
+		for image in img_files:
+			full_path = path + '/' + image
+			image_surf = pygame.image.load(full_path).convert_alpha()
+			surface_list.append(image_surf)
+
+	return surface_list
 
 
 dung_room_0_layout = {

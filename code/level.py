@@ -2,8 +2,8 @@
 """ Class which handles the drawing, updating and interaction between all the sprite groups """
 
 import pygame 
-from map import TILESIZE, dung_room_0_layout, dung_room_0_graphics
-from prop import Prop, StaticProp
+from room_maps import TILESIZE, dung_room_0_layout, dung_room_0_graphics
+from prop import Prop
 from player import Player
 from debug import debug
 
@@ -33,19 +33,19 @@ class Level:
 							self.player = Player((x,y), [self.visible_sprites], self.obstacle_sprites)
 						if layer == 'pillars':
 							surface = dung_tiles_list[int(col)]
-							StaticProp((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
-						if layer == 'invis_walls':
+							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface, -16, -42)
+						if layer == 'invis_walls': # underneath the lighing
 							surface = dung_tiles_list[int(col)]
-							StaticProp((x,y),[self.obstacle_sprites], surface)
-						if layer == 'back_props_des':
+							Prop((x,y),[self.obstacle_sprites], surface, -16, -42)
+						if layer == 'back_props_des': # destroyed versions of background props
 							surface = dung_props_list[int(col)]
-							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
+							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface, -32, -54)
 						if layer == 'back_props_1':
 							surface = dung_props_list[int(col)]
-							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
-						if layer == 'back_props_2':
+							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface, -32)
+						if layer == 'back_props_2': # the half blocks (like tops of barrels, tables that are visually not the whole tile)
 							surface = dung_props_list[int(col)]
-							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
+							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface, -32, -54)
 						if layer == 'interact':
 							surface = dung_props_list[int(col)]
 							Prop((x,y),[self.visible_sprites], surface)
@@ -75,47 +75,56 @@ class Camera(pygame.sprite.Group):
 
 		# create floor (and light) seperately as image, so it is always on bottom (and does not interact with the y sort)
 		self.floor_surface = pygame.image.load('./map/dungeon/room_0/dung_room_0_floor.png')
-		self.floor_surface = pygame.transform.scale_by(self.floor_surface, 4)
+		self.floor_surface = pygame.transform.scale(self.floor_surface, (self.floor_surface.get_width() * 4, self.floor_surface.get_height() * 4))
 		self.floor_rect = self.floor_surface.get_rect(topleft = (0,0))
 
-		# self.light_status = 1
-		# self.light_index = 0
-		# #self.floor_light_surface_list = import_folder_thing
-
-
-		# if self.light_status == 1:
-		# 	#self.floor_light_surface = self.floor_light_surface_list[self.light_index]
-		# 	self.light_index += 1
-		# 	if self.light_index == len(self.floor_light_surface_list):
-		# 		self.light_index = len(self.floor_light_surface_list)
-		# 		self.light_status = 0
-		# elif self.light_status == 0:
-
-		#self.floor_light_surface = self.floor_light_surface_list[self.light_index] 
-
 		self.floor_light_surface = pygame.image.load('./map/dungeon/room_0/dung_room_0_light.png')
-
-
-		self.floor_light_surface = pygame.transform.scale_by(self.floor_light_surface, 4)
+		self.floor_light_surface = pygame.transform.scale(self.floor_light_surface, (self.floor_light_surface.get_width() * 4, self.floor_light_surface.get_height() * 4))
+		self.floor_light_surface_alpha = 150
 		self.floor_light_rect = self.floor_light_surface.get_rect(topleft = (0,0))
+		self.floor_light_alpha_check = 1
 
 	def offset_draw(self, player):
 		# find player distance from midpoint of screen
 		self.offset.x = player.rect.centerx - self.midpoint_x
 		self.offset.y = player.rect.centery - self.midpoint_y
 
+		# Fixes for all inflated sprites to be drawn in proper place, general sprites and then player (different offset required for each value of scale_by)
+		offset_fix = pygame.math.Vector2(32,32)
+		player_offset_fix = pygame.math.Vector2(16,16)
+
 		# drawing the floor
-		floor_offset_fix = pygame.math.Vector2(32,32)
-		floor_offset = self.floor_rect.topleft - self.offset + floor_offset_fix
+		floor_offset = self.floor_rect.topleft - self.offset 
 		self.display_surface.blit(self.floor_surface, floor_offset)
 
-		floor_light_offset = self.floor_light_rect.topleft - self.offset + floor_offset_fix
+		if self.floor_light_surface_alpha <= 130:
+			self.floor_light_surface_alpha = 130
+			self.floor_light_alpha_check = 1
+		elif self.floor_light_surface_alpha >= 255:
+			self.floor_light_surface_alpha = 255
+			self.floor_light_alpha_check = 0
+
+		if self.floor_light_alpha_check == 1:
+			self.floor_light_surface_alpha += 5
+		else:
+			self.floor_light_surface_alpha -= 5
+		self.floor_light_surface.set_alpha(self.floor_light_surface_alpha)
+		floor_light_offset = self.floor_light_rect.topleft - self.offset 
 		self.display_surface.blit(self.floor_light_surface, floor_light_offset)
 
 		# make new sprite rectangle to blit image onto, which will be in different position based on offset above
 		for sprite in sorted(self.sprites(), key = self.y_sort):
-			sprite_offset = sprite.rect.center - self.offset
+			if isinstance(sprite, Player):
+				sprite_offset = sprite_offset = sprite.rect.center - self.offset - offset_fix - player_offset_fix
+			else:
+				sprite_offset = sprite.rect.center - self.offset - offset_fix
 			self.display_surface.blit(sprite.image, sprite_offset)
+
+			# test_surface = pygame.Surface(sprite.rect.size)
+			# BLACK = (0,0,0)
+			# test_surface.fill(BLACK)
+			# self.display_surface.blit(test_surface, sprite_offset)
+
 
 	def y_sort(self, to_sort):
 		return to_sort.rect.centery
