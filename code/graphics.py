@@ -1,5 +1,5 @@
 
-""" Game Window and Map setup """
+""" Game Window and Graphical elements setup """
 
 import pygame
 from csv import reader
@@ -14,7 +14,7 @@ TILESIZE = 64
 
 fog_colour = (20,20,20)
 
-
+# functions to import tilesets/image collections for grahpical elements
 def read_map_csv(path):
     room_map = []
     with open(path) as map:
@@ -52,6 +52,10 @@ def png_collection(path):
 	return surface_list
 
 
+
+
+# map graphical data
+
 dung_room_0_layout = {
     'floor': read_map_csv('./map/dungeon/room_0/dung_room_0_floor.csv'),
     'pillars': read_map_csv('./map/dungeon/room_0/dung_room_0_pillars.csv'),
@@ -71,4 +75,18 @@ dung_room_0_graphics = {
     'dung_tiles': cut_tileset('./graphics/underworld/Environment/Dungeon Prison/Assets/Tiles.png'),
     'dung_props': cut_tileset('./graphics/underworld/Environment/Dungeon Prison/Assets/Props.png'),
     'spawns': cut_tileset('./map/universal/graphics/red-stop.png')
+}
+
+
+
+
+# weapon graphical data
+
+bone_weapon_data = {
+    'book': {'cooldown': 400, 'damage': 30, 'png': './graphics/underworld/Weapons/Bone/collection/Bone-Book.png'},
+    'knife': {'cooldown': 100, 'damage': 10, 'png': './graphics/underworld/Weapons/Bone/collection/Bone-Knife.png'},
+    'spear': {'cooldown': 300, 'damage': 25, 'png': './graphics/underworld/Weapons/Bone/collection/Bone-Spear.png'},
+    'staff': {'cooldown': 400, 'damage': 30, 'png': './graphics/underworld/Weapons/Bone/collection/Bone-Staff.png'},
+    'sword': {'cooldown': 400, 'damage': 30, 'png': './graphics/underworld/Weapons/Bone/collection/Bone-Sword.png'},
+    'wand': {'cooldown': 100, 'damage': 10, 'png': './graphics/underworld/Weapons/Bone/collection/Bone-Wand.png'}
 }

@@ -1,5 +1,5 @@
 import pygame, sys
-from room_maps import WIDTH, HEIGHT, FPS
+from graphics import WIDTH, HEIGHT, FPS
 from level import Level
 
 class Game:

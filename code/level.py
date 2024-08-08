@@ -2,8 +2,8 @@
 """ Class which handles the drawing, updating and interaction between all the sprite groups """
 
 import pygame 
-from room_maps import TILESIZE, WIDTH, HEIGHT, fog_colour, dung_room_0_layout, dung_room_0_graphics
-from prop import Prop
+from graphics import TILESIZE, WIDTH, HEIGHT, fog_colour, dung_room_0_layout, dung_room_0_graphics
+from prop import Prop, Projectile, Weapon, StaticWeapon, CQCWeapon
 from player import Player
 from debug import debug
 
@@ -30,7 +30,9 @@ class Level:
 						x = col_index * TILESIZE
 						y = row_index * TILESIZE
 						if layer == 'player':
-							self.player = Player((x,y), [self.visible_sprites], self.obstacle_sprites)
+							self.player = Player((x,y), [self.visible_sprites], self.obstacle_sprites, self.create_projectile)
+							self.static_weapon = StaticWeapon(self.player, self.visible_sprites, 'staff')
+							self.cqc_weapon = CQCWeapon(self.player, self.visible_sprites, 'sword')
 						if layer == 'pillars':
 							surface = dung_tiles_list[int(col)]
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface, -16, -42)
@@ -56,6 +58,9 @@ class Level:
 							surface = dung_tiles_list[int(col)]
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
 		
+	def create_projectile(self):
+		Projectile(self.player,[self.visible_sprites])
+
 
 	# update and draw everything. Custom draw method to allow camera offset
 	def run(self):
@@ -125,6 +130,7 @@ class Camera(pygame.sprite.Group):
 		self.display_surface.blit(self.floor_light_surface, floor_light_offset)
 
 		# make new sprite rectangle to blit image onto, which will be in different position based on offset above
+
 		for sprite in sorted(self.sprites(), key = self.y_sort):
 			if isinstance(sprite, Player):
 				sprite_offset = sprite.rect.center - self.offset - offset_fix - player_offset_fix
@@ -141,12 +147,6 @@ class Camera(pygame.sprite.Group):
 		if self.fog == 1:
 			self.display_surface.blit(self.fow_surf, (0,0), special_flags = pygame.BLEND_MULT)
 	
-
-
-
-
-
-
 	def y_sort(self, to_sort):
 		return to_sort.rect.centery
 	

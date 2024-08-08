@@ -2,14 +2,13 @@
 """ Player controlled sprite """
 
 import pygame
-from room_maps import cut_tileset, png_collection
+from graphics import cut_tileset, png_collection
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self,pos,groups,obstacle_sprites):
+	def __init__(self,pos,groups,obstacle_sprites,create_projectile):
 		super().__init__(groups)
 
-		#'./graphics/underworld/Heroes/Wizzard/Idle/collection/Idle-Sheet-1.png'
-
+		# sprite initial creation
 		self.image = pygame.image.load('./graphics/underworld/Heroes/Wizzard/Idle/collection/Idle-Sheet-1.png').convert_alpha()
 		self.image = pygame.transform.scale_by(self.image, 3)
 		self.rect = self.image.get_rect(topleft = pos)
@@ -23,6 +22,7 @@ class Player(pygame.sprite.Sprite):
 		self.status = 'right'
 		self.frame_index = 0
 		self.animation_speed = 0.15
+		self.create_projectile = create_projectile
 
 		# movement + attack variables
 		self.direction = pygame.math.Vector2()
@@ -65,6 +65,7 @@ class Player(pygame.sprite.Sprite):
 		# primary attack
 		if keys[pygame.K_SPACE] and self.pri_attack == False:
 			print('i am dumb')
+			self.create_projectile()
 			self.pri_attack = True
 			self.last_pri_attack_time = pygame.time.get_ticks()
 
