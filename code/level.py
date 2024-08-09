@@ -13,6 +13,8 @@ class Level:
 		""" Sprite Groups """
 		self.visible_sprites = Camera()
 		self.obstacle_sprites = pygame.sprite.Group()
+		self.player_projectile_sprites = pygame.sprite.Group()
+		self.destructable_sprites = pygame.sprite.Group()
 
 		self.create_map()
 
@@ -44,10 +46,10 @@ class Level:
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface, -32, -54)
 						if layer == 'back_props_1':
 							surface = dung_props_list[int(col)]
-							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface, -32)
+							Prop((x,y),[self.visible_sprites,self.obstacle_sprites, self.destructable_sprites], surface, -32)
 						if layer == 'back_props_2': # the half blocks (like tops of barrels, tables that are visually not the whole tile)
 							surface = dung_props_list[int(col)]
-							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface, -32, -54)
+							Prop((x,y),[self.visible_sprites,self.obstacle_sprites, self.destructable_sprites], surface, -32, -54)
 						if layer == 'interact':
 							surface = dung_props_list[int(col)]
 							Prop((x,y),[self.visible_sprites], surface)
@@ -59,7 +61,7 @@ class Level:
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
 		
 	def create_projectile(self):
-		Projectile(self.player,[self.visible_sprites])
+		Projectile(self.player,[self.visible_sprites, self.player_projectile_sprites], self.obstacle_sprites, self.destructable_sprites)
 
 
 	# update and draw everything. Custom draw method to allow camera offset

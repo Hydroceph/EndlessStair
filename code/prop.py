@@ -79,7 +79,7 @@ class CQCWeapon(Weapon):
 
 
 class Projectile(pygame.sprite.Sprite):
-    def __init__(self,player,groups):
+    def __init__(self,player,groups, obstacle_sprites, destructable_sprites):
         super().__init__(groups)
         direction = (pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(WIDTH / 2, HEIGHT / 2))
         self.direction = direction.normalize()
@@ -89,7 +89,22 @@ class Projectile(pygame.sprite.Sprite):
         self.image.fill((0,0,0))
 
         self.rect = self.image.get_rect(center = player.rect.center + self.direction * 50)
+        self.rect_collision = self.rect.inflate(-4, -4)
+
+        self.obstacle_sprites = obstacle_sprites
+        self.destructable_sprites = destructable_sprites
 
     def update(self):
         # Move the weapon in the direction of the mouse
-        self.rect.center += self.direction * self.speed
+        self.rect_collision.center += self.direction * self.speed
+        self.rect.center = self.rect_collision.center
+
+        for sprite in self.obstacle_sprites:
+            if sprite.rect_collision.colliderect(self.rect_collision):
+                self.kill()
+
+        for sprite in self.destructable_sprites:
+            if sprite.rect_collision.colliderect(self.rect_collision):
+                sprite.kill()
+                self.kill()
+
