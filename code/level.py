@@ -2,10 +2,11 @@
 """ Class which handles the drawing, updating and interaction between all the sprite groups """
 
 import pygame 
-from graphics import TILESIZE, WIDTH, HEIGHT, fog_colour, dung_room_0_layout, dung_room_0_graphics
+from graphics import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics
 from prop import Prop, Projectile, Weapon, StaticWeapon, CQCWeapon
 from player import Player
 from debug import debug
+from gui import GUI
 
 class Level:
 	def __init__(self):
@@ -16,9 +17,13 @@ class Level:
 		self.player_projectile_sprites = pygame.sprite.Group()
 		self.destructable_sprites = pygame.sprite.Group()
 
+		# create spries based on tiled csv
 		self.create_map()
 
-	# create sprites based on map in settings
+		# GUI
+		self.gui = GUI()
+
+	# create sprites based on map from tiled
 	def create_map(self):
 		layout = dung_room_0_layout # use this to add extra different map levels later?
 		dung_tiles_list = dung_room_0_graphics["dung_tiles"]
@@ -59,7 +64,8 @@ class Level:
 						if layer == 'exit_2':
 							surface = dung_tiles_list[int(col)]
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
-		
+
+	# player magic attack
 	def create_projectile(self):
 		Projectile(self.player,[self.visible_sprites, self.player_projectile_sprites], self.obstacle_sprites, self.destructable_sprites)
 
@@ -68,6 +74,7 @@ class Level:
 	def run(self):
 		self.visible_sprites.offset_draw(self.player)
 		self.visible_sprites.update()
+		self.gui.display(self.player)
 
 # Finds the vector distance of the player from the centre point of the window, and takes that offset away from each sprite so player stays central in camera
 # also adds y sorting of sprites, so the sprite that is below is in front (allows player to stand behind or in front of props)
@@ -93,7 +100,7 @@ class Camera(pygame.sprite.Group):
 
 		# FOW lighting effect
 		self.fow_surf = pygame.Surface((WIDTH,HEIGHT))
-		self.fow_surf.fill((fog_colour))
+		self.fow_surf.fill((FOG_COLOUR))
 		self.fow_light_surf = pygame.image.load('./map/dungeon/FOW_light.png').convert_alpha()
 		self.fow_light_surf = pygame.transform.scale(self.fow_light_surf, (500,500))
 		self.fow_light_rect = self.fow_light_surf.get_rect()

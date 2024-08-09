@@ -36,6 +36,7 @@ class Weapon(pygame.sprite.Sprite):
         self.image = self.weapon_surface
         self.rect = self.image.get_rect(center = self.player.rect.center + self.distance_from_player_offset + self.player_direction * self.distance_from_player)
 
+# magic weapon, always held behind player
 class StaticWeapon(Weapon):
     def __init__(self, player, groups, weapontype):
         super().__init__(player, groups, weapontype)
@@ -49,6 +50,7 @@ class StaticWeapon(Weapon):
         else:
             self.rect.center = self.player.rect.center + self.distance_from_player_offset + self.player_direction * self.distance_from_player
 
+# melee weapon, always held pointing towards mouse
 class CQCWeapon(Weapon):
     def __init__(self, player, groups, weapontype):
         super().__init__(player, groups, weapontype)
@@ -77,7 +79,7 @@ class CQCWeapon(Weapon):
 
 
 
-
+# player magic attack
 class Projectile(pygame.sprite.Sprite):
     def __init__(self,player,groups, obstacle_sprites, destructable_sprites):
         super().__init__(groups)

@@ -5,14 +5,26 @@ import pygame
 from csv import reader
 from os import walk
 
-
+# Screen and map
 WIDTH = 1280	
 HEIGHT = 720
 FPS = 60
 TILESET_TILESIZE = 16
 TILESIZE = 64
 
-fog_colour = (20,20,20)
+# GUI
+FOG_COLOUR = (20,20,20)
+
+BAR_HEIGHT = 10
+HP_BAR_WIDTH = 100
+EXP_BAR_WIDTH = 100
+FONT = './graphics/underworld/Font/Pixeltype.ttf'
+FONT_SIZE = 32
+
+HEALTH_COLOUR = 'red'
+EXP_FONT_COLOUR = 'yellow'
+BAR_BACKGROUND_COLOUR = '#444444'
+BAR_BORDER_COLOUR = '#333333'
 
 # functions to import tilesets/image collections for grahpical elements
 def read_map_csv(path):

@@ -2,7 +2,7 @@
 """ Player controlled sprite """
 
 import pygame
-from graphics import cut_tileset, png_collection
+from graphics import png_collection
 
 class Player(pygame.sprite.Sprite):
 	def __init__(self,pos,groups,obstacle_sprites,create_projectile):
@@ -26,7 +26,6 @@ class Player(pygame.sprite.Sprite):
 
 		# movement + attack variables
 		self.direction = pygame.math.Vector2()
-		self.speed = 10
 		self.pri_attack = False
 		self.sec_attack = False
 		self.cooldown_time = 400 # in milliseconds
@@ -34,6 +33,12 @@ class Player(pygame.sprite.Sprite):
 		self.last_sec_attack_time = None
 
 		self.obstacle_sprites = obstacle_sprites
+
+		# stats
+		self.stats = {'health': 100, 'attack': 10, 'speed': 6}
+		self.health = self.stats['health']
+		self.speed = self.stats['speed']
+		self.exp = 10
 
 	def input(self):
 		# checking for all inputs, using wasd for movement
@@ -77,7 +82,7 @@ class Player(pygame.sprite.Sprite):
 
 	def action_status(self):
 
-		# idle - makes it right_idle or left_idle
+		# idle - makes it right_idle or left_idle, which can then be used to flip image so player looks left or right as needed
 		if self.direction.x == 0 and self.direction.y == 0:
 			if 'idle' in self.status:
 				pass
@@ -149,7 +154,7 @@ class Player(pygame.sprite.Sprite):
 			if current_time - self.last_sec_attack_time >= self.cooldown_time:
 				self.sec_attack = False
 
-		# player being attacked
+		# player being attacked?
 
 	def update(self):
 		self.input()
