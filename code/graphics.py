@@ -103,11 +103,14 @@ bone_weapon_data = {
     'wand': {'cooldown': 100, 'damage': 10, 'png': './graphics/underworld/Weapons/Bone/collection/Bone-Wand.png'}
 }
 
-
+attack_animation_data = {
+    'nova_ball': './graphics/underworld/Particles/nova',
+    'stab': './graphics/underworld/Particles/slash'
+}
 
 
 
 # enemy data
 enemy_data = {
-	'orc': {'health': 100,'exp': 100,'damage': 20,'attack_type': 'slash', 'speed': 3, 'resistance': 3, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Run/collection' }
+	'orc': {'health': 100,'exp': 100,'damage': 20,'attack_type': 'slash', 'speed': 3, 'resistance': 3, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Run/collection', 'hit_graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Death/collection' }
 }

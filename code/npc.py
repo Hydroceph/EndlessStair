@@ -2,7 +2,7 @@
 """ NPC sprites: props, weapons and enemies """
 
 import pygame
-from graphics import TILESIZE, WIDTH, HEIGHT, bone_weapon_data, png_collection, enemy_data
+from graphics import TILESIZE, WIDTH, HEIGHT, bone_weapon_data, png_collection, enemy_data, attack_animation_data
 from math import atan2, degrees
 
 # static background props
@@ -55,8 +55,8 @@ class CQCWeapon(Weapon):
     def __init__(self, player, groups, weapontype):
         super().__init__(player, groups, weapontype)
 
-        self.distance_from_player = 80
-        self.cqc_distance_from_player_offset = pygame.math.Vector2(32,0)
+        self.distance_from_player = 40
+        self.cqc_distance_from_player_offset = pygame.math.Vector2(0,0)
         
     def update(self):
         self.weapon_direction()
@@ -68,56 +68,104 @@ class CQCWeapon(Weapon):
         self.player_direction = direction.normalize()
         
     def rotate_weapon(self):
-        mouse_angle = degrees(atan2(self.player_direction.x, self.player_direction.y)) - 180
-        self.image = pygame.transform.rotozoom(self.weapon_surface, mouse_angle, 1)
+        mouse_angle = degrees(atan2(self.player_direction.x, self.player_direction.y))
+        # different substractions from mouse angle to make the sword always be facing out, could alternatively have it as -180 to be always pointing out
         if self.player_direction.x > 0:
-            self.image = pygame.transform.rotozoom(self.weapon_surface, mouse_angle, 1)
+            self.image = pygame.transform.rotozoom(self.weapon_surface, (mouse_angle - 270 ), 1)
+            
         else:
-            self.image = pygame.transform.rotozoom(self.weapon_surface, (mouse_angle * -1), 1)
+            self.image = pygame.transform.rotozoom(self.weapon_surface, ((mouse_angle - 90) * -1), 1)
             self.image = pygame.transform.flip(self.image, True, False)
 
 
 
 
-# player magic attack
+# player attack
 class Projectile(pygame.sprite.Sprite):
-    def __init__(self,player,groups, obstacle_sprites, destructable_sprites, damageable_sprites):
+    def __init__(self,player,groups, obstacle_sprites, destructable_sprites, damageable_sprites, speed = 5, attack_type = 'nova_ball', player_distance = 75):
         super().__init__(groups)
         direction = (pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(WIDTH / 2, HEIGHT / 2))
         self.direction = direction.normalize()
-        self.speed = 5
+        self.speed = speed
         
-        self.image = pygame.Surface((40,40))
-        self.image.fill((0,0,0))
+        self.attack_type = attack_type
+        self.image_list = png_collection(attack_animation_data[self.attack_type])
+        self.image = self.image_list[0]
+        if self.attack_type == 'nova_ball':
+            self.image = pygame.transform.scale_by(self.image, 0.5)
 
-        self.rect = self.image.get_rect(center = player.rect.center + self.direction * 50)
+        self.rect = self.image.get_rect(center = player.rect.center + self.direction * player_distance)
         self.rect_collision = self.rect.inflate(-4, -4)
+
+        self.frame_index = 0
+        self.animation_speed = 0.15
 
         self.obstacle_sprites = obstacle_sprites
         self.destructable_sprites = destructable_sprites
         self.damageable_sprites = damageable_sprites
 
+    def animate(self):
+        self.frame_index += self.animation_speed
+        animation = self.image_list
+        if self.frame_index > len(animation):
+            self.frame_index = 0
+        self.image_original = animation[int(self.frame_index)]
+        self.image = self.image_original
+        if self.attack_type == 'nova_ball':
+            self.image = pygame.transform.scale_by(self.image, 0.5)
+
+        self.rect = self.image.get_rect(center = self.rect_collision.center)
+
     def update(self):
-        # Move the weapon in the direction of the mouse
+        # Move the projectile in the direction of the mouse
         self.rect_collision.center += self.direction * self.speed
         self.rect.center = self.rect_collision.center
 
+        self.animate()
+
         for sprite in self.obstacle_sprites:
             if sprite.rect_collision.colliderect(self.rect_collision):
-                self.kill()
+                if self.attack_type != 'stab':
+                    self.kill()
 
         for sprite in self.damageable_sprites:
-            print('hello')
             if sprite.rect_collision.colliderect(self.rect_collision):
-                self.kill()
+                if self.attack_type != 'stab':
+                    self.kill()
 
         for sprite in self.destructable_sprites:
             if sprite.rect_collision.colliderect(self.rect_collision):
                 sprite.kill()
-                self.kill()
+                if self.attack_type != 'stab':
+                    self.kill()
 
+class Melee(Projectile):
+    def __init__(self, player, groups, obstacle_sprites, destructable_sprites, damageable_sprites, speed=0, attack_type='stab', player_distance = 100):
+        super().__init__(player, groups, obstacle_sprites, destructable_sprites, damageable_sprites, speed, attack_type, player_distance)
+        self.duration = 400
+        self.attack_time = pygame.time.get_ticks()
+        self.animation_speed = 0.3
 
+    def attack_duration(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.attack_time >= self.duration:
+            self.kill()
 
+    def rotate_animation(self):
+        mouse_angle = degrees(atan2(self.direction.x, self.direction.y))
+        if self.direction.x > 0:
+            self.image = pygame.transform.rotozoom(self.image_original, (mouse_angle - 135), 1)
+            
+        else:
+            self.image = pygame.transform.rotozoom(self.image_original, ((mouse_angle- 225) * -1), 1)
+            self.image = pygame.transform.flip(self.image, True, False)
+
+    def update(self):
+        super().update()
+        self.rotate_animation()
+        self.attack_duration()
+
+        
 
 # enemy sprites, with character super class (which is also the superclass for the player)
 class Character(pygame.sprite.Sprite):
@@ -162,11 +210,22 @@ class Character(pygame.sprite.Sprite):
                         if self.direction.x < 0:
                             self.rect_collision.left = sprite.rect_collision.right
 
-
-class Enemy(Character):
-    def __init__(self, groups, obstacle_sprites, enemy_type, pos):
+class EnemyCharacter(Character):
+    def __init__(self, groups, enemy_type, pos):
         super().__init__(groups)
-        self.sprite_type = 'enemy'
+
+        # stats
+        self.enemy_type = enemy_type
+        self.enemy_info = enemy_data[self.enemy_type]
+        self.speed =  self.enemy_info['speed']
+        self.animation_direction = 'right'
+        self.health =  self.enemy_info['health']
+        self.exp =  self.enemy_info['exp']
+        self.attack_type =  self.enemy_info['attack_type']
+        self.attack_damage =  self.enemy_info['damage']
+        self.resistance =  self.enemy_info['resistance']
+        self.attack_radius =  self.enemy_info['attack_radius']
+        self.notice_radius =  self.enemy_info['notice_radius']
 
         self.image_list = png_collection(enemy_data[enemy_type]['graphics'])
         self.image = self.image_list[self.frame_index]
@@ -174,27 +233,27 @@ class Enemy(Character):
 
         self.rect = self.image.get_rect(topleft = pos)
         self.rect_collision = self.rect.inflate(-8, -16)
+
+class Enemy(EnemyCharacter):
+    def __init__(self, groups, obstacle_sprites, enemy_type, pos, damage_player):
+        super().__init__(groups, enemy_type, pos)
+
+
         self.obstacle_sprites = obstacle_sprites
         self.status = 'slow_move'
 
-        # stats
-        self.enemy_type = enemy_type
-        enemy_info = enemy_data[self.enemy_type]
-        self.speed = enemy_info['speed']
-        self.animation_direction = 'right'
-        self.health = enemy_info['health']
-        self.exp = enemy_info['exp']
-        self.attack_type = enemy_info['attack_type']
-        self.attack_damage = enemy_info['damage']
-        self.resistance = enemy_info['resistance']
-        self.attack_radius = enemy_info['attack_radius']
-        self.notice_radius = enemy_info['notice_radius']
+        # attack player
         self.can_attack = True
         self.last_attack_time = None
         self.enemy_cooldown_time = 400
+        self.damage_player = damage_player
+
+        # enemy atacked
+        self.can_be_attacked = True
+        self.last_hit_time = None
+        self.invincible_duration = 300
+        self.enemy_hit_image = png_collection(enemy_data[enemy_type]['hit_graphics'])[0]
     
-
-
     def direction_check(self, player):
         player_position = pygame.math.Vector2(player.rect.center)
         enemy_position = pygame.math.Vector2(self.rect.center)
@@ -223,12 +282,21 @@ class Enemy(Character):
         return direction
 
     def get_damage(self, player, attack_type):
-        if attack_type == 'magic':
-            self.health -= player.get_weapon_damage()[0]
+        if self.can_be_attacked:
+            if attack_type == 'magic':
+                self.health -= player.get_weapon_damage()[0]
+            if attack_type == 'melee':
+                self.health -= player.get_weapon_damage()[1]
+            self.last_hit_time = pygame.time.get_ticks()
+            self.can_be_attacked = False
 
     def check_heatlh(self):
         if self.health <= 0:
             self.kill()
+
+    def knockback(self):
+        if self.can_be_attacked == False:
+            self.direction *= self.resistance * -1
 
     def enemy_update(self, player):
         self.direction_check(player)
@@ -236,8 +304,8 @@ class Enemy(Character):
 
     def chase(self,player):
         if self.status == 'attack' and self.can_attack == True:
-            print('attack')
             self.can_attack = False
+            self.damage_player(self.attack_damage)
             self.last_attack_time = pygame.time.get_ticks()
         elif self.status == 'move':
             self.direction = self.direction_check(player)
@@ -250,6 +318,15 @@ class Enemy(Character):
             self.frame_index = 0
         self.image = self.image_list[int(self.frame_index)]
         self.image = pygame.transform.scale_by(self.image, 3)
+
+        # hit animation when damaged
+        if self.can_be_attacked == False:
+            self.attacked_image = self.enemy_hit_image
+            self.attacked_image = pygame.transform.scale_by(self.attacked_image, 3)
+            self.image = self.attacked_image
+        else:
+            self.image.set_alpha(255)
+
         if self.animation_direction == 'left':
             self.image = pygame.transform.flip(self.image,True,False)
         self.rect = self.image.get_rect(center = self.rect_collision.center)
@@ -260,9 +337,22 @@ class Enemy(Character):
         if self.can_attack == False:
             if current_time - self.last_attack_time >= self.enemy_cooldown_time:
                 self.can_attack = True
+            
+        if self.can_be_attacked == False:
+            if current_time - self.last_hit_time >= self.invincible_duration:
+                self.can_be_attacked = True
 
     def update(self):
+        self.knockback()
         self.move(self.speed)
         self.animate()
         self.enemy_attack_cooldown()
         self.check_heatlh()
+
+class PatrolEnemy(EnemyCharacter):
+    def __init__(self, groups, enemy_type, pos):
+        super().__init__(groups, enemy_type, pos)
+
+
+    def update(self):
+        self.move(self.speed)

@@ -3,7 +3,7 @@
 
 import pygame 
 from graphics import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics
-from npc import Prop, Projectile, Enemy, StaticWeapon, CQCWeapon
+from npc import Prop, Projectile, Melee, Enemy, StaticWeapon, CQCWeapon
 from player import Player
 from debug import debug
 from gui import GUI
@@ -39,7 +39,7 @@ class Level:
 						x = col_index * TILESIZE
 						y = row_index * TILESIZE
 						if layer == 'player':
-							self.player = Player((x,y), [self.visible_sprites], self.obstacle_sprites, self.create_projectile)
+							self.player = Player((x,y), [self.visible_sprites], self.obstacle_sprites, self.create_projectile, self.create_melee)
 							self.static_weapon = StaticWeapon(self.player, self.visible_sprites, 'staff')
 							self.cqc_weapon = CQCWeapon(self.player, self.visible_sprites, 'sword')
 						if layer == 'pillars':
@@ -68,7 +68,7 @@ class Level:
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
 						if layer == 'mob':
 							if col == '1':
-								Enemy([self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'orc', (x,y))
+								Enemy([self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'orc', (x,y), self.damage_player)
 							if col == '2':
 								pass
 							if col == '4':
@@ -80,9 +80,12 @@ class Level:
 							Prop((x,y),[self.constraints_sprites], surface)
 						
 
-	# player magic attack
+	# player attack
 	def create_projectile(self):
 		Projectile(self.player,[self.visible_sprites, self.damage_sprites], self.obstacle_sprites, self.destructable_sprites, self.damageable_sprites)
+
+	def create_melee(self):
+		Melee(self.player,[self.visible_sprites, self.damage_sprites], self.obstacle_sprites, self.destructable_sprites, self.damageable_sprites)
 
 	def player_attack(self):
 		if self.damage_sprites:
@@ -91,6 +94,12 @@ class Level:
 				if damaged_sprites:
 					for damaged_sprite in damaged_sprites:
 						damaged_sprite.get_damage(self.player, 'magic')
+
+	def damage_player(self, damage_amount):
+		if self.player.player_can_be_hit:
+			self.player.health -= damage_amount
+			self.player.player_can_be_hit = False
+			self.player.last_hit_time = pygame.time.get_ticks()
 
 	# update and draw everything. Custom draw method to allow camera offset
 	def run(self):
@@ -182,7 +191,7 @@ class Camera(pygame.sprite.Group):
 		if self.fog == 1:
 			self.display_surface.blit(self.fow_surf, (0,0), special_flags = pygame.BLEND_MULT)
 	
-	# so that you're not passing player into every single sprite 
+	# so that you're not passing player into every single sprite, which is why you have all this seperately
 	def enemy_update(self, player):
 		enemy_sprites = []
 		for sprite in self.sprites():

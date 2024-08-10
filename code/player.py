@@ -6,7 +6,7 @@ from graphics import png_collection, bone_weapon_data
 from npc import Character
 
 class Player(Character):
-	def __init__(self,pos,groups,obstacle_sprites,create_projectile):
+	def __init__(self, pos, groups, obstacle_sprites, create_projectile, create_melee):
 		super().__init__(groups)
 
 		# sprite initial creation
@@ -18,10 +18,15 @@ class Player(Character):
 		# graphical variables
 		self.player_graphics = {
 			'Wiz_Idle': png_collection('./graphics/underworld/Heroes/Wizzard/Idle/collection'),
-			'Wiz_Run': png_collection('./graphics/underworld/Heroes/Wizzard/Run/collection')
+			'Wiz_Run': png_collection('./graphics/underworld/Heroes/Wizzard/Run/collection'),
+			'Wiz_Hit': png_collection('./graphics/underworld/Heroes/Wizzard/Death/collection')
 		}
 		self.status = 'right'
+		self.hero_type = 'Wiz'
+
+
 		self.create_projectile = create_projectile
+		self.create_melee = create_melee
 
 		# movement + attack variables
 		self.pri_attack = False
@@ -40,6 +45,10 @@ class Player(Character):
 		self.weapon_tier = bone_weapon_data
 		self.current_weapon_magic = 'staff'
 		self.current_weapon_melee = 'sword'
+		self.player_can_be_hit = True
+		self.last_hit_time = None
+		self.invulnerable_time = 420
+		
 
 	def input(self):
 		# checking for all inputs, using wasd for movement
@@ -76,6 +85,7 @@ class Player(Character):
 
 		# secondary attack
 		if keys[pygame.K_LSHIFT] and self.sec_attack == False:
+			self.create_melee()
 			self.sec_attack = True
 			self.last_sec_attack_time = pygame.time.get_ticks()
 
@@ -91,17 +101,20 @@ class Player(Character):
 	def animate(self):
 		self.frame_index += self.animation_speed
 		if 'idle' in self.status:
-			animation_key = 'Wiz_Idle'
+			animation_key = '_Idle'
 		else: # running
-			animation_key = 'Wiz_Run'
-
-		animation = self.player_graphics[animation_key]
+			animation_key = '_Run'
+		animation = self.player_graphics[self.hero_type + animation_key]
 		if self.frame_index > len(animation):
 			self.frame_index = 0
-
-
 		self.image = animation[int(self.frame_index)]
 		self.image = pygame.transform.scale_by(self.image, 3)
+
+		if self.player_can_be_hit == False:
+			self.attacked_image = self.player_graphics[self.hero_type + '_Hit'][0]
+			self.attacked_image = pygame.transform.scale_by(self.attacked_image, 3)
+			self.image = self.attacked_image
+
 		if 'left' in self.status:
 			self.image = pygame.transform.flip(self.image,True,False)
 		self.rect = self.image.get_rect(center = self.rect_collision.center)
@@ -119,6 +132,9 @@ class Player(Character):
 				self.sec_attack = False
 
 		# player being attacked?
+		if self.player_can_be_hit == False:
+			if current_time - self.last_hit_time >= self.invulnerable_time:
+				self.player_can_be_hit = True
 
 	def get_weapon_damage(self):
 		base_damage = self.stats['attack']
