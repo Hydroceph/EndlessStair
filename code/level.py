@@ -3,7 +3,7 @@
 
 import pygame 
 from graphics import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics
-from prop import Prop, Projectile, Weapon, StaticWeapon, CQCWeapon
+from npc import Prop, Projectile, Enemy, StaticWeapon, CQCWeapon
 from player import Player
 from debug import debug
 from gui import GUI
@@ -16,6 +16,7 @@ class Level:
 		self.obstacle_sprites = pygame.sprite.Group()
 		self.player_projectile_sprites = pygame.sprite.Group()
 		self.destructable_sprites = pygame.sprite.Group()
+		self.constraints_sprites = pygame.sprite.Group()
 
 		# create spries based on tiled csv
 		self.create_map()
@@ -64,6 +65,19 @@ class Level:
 						if layer == 'exit_2':
 							surface = dung_tiles_list[int(col)]
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
+						if layer == 'mob':
+							if col == '1':
+								Enemy([self.visible_sprites],self.obstacle_sprites, 'orc', (x,y))
+							if col == '2':
+								pass
+							if col == '4':
+								surface = dung_tiles_list[5]
+								surface.fill((250,250,250))
+								Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
+						if layer == 'constraints':
+							surface = spawns_list[0]
+							Prop((x,y),[self.constraints_sprites], surface)
+						
 
 	# player magic attack
 	def create_projectile(self):
@@ -74,6 +88,7 @@ class Level:
 	def run(self):
 		self.visible_sprites.offset_draw(self.player)
 		self.visible_sprites.update()
+		self.visible_sprites.enemy_update(self.player)
 		self.gui.display(self.player)
 
 # Finds the vector distance of the player from the centre point of the window, and takes that offset away from each sprite so player stays central in camera
@@ -143,6 +158,8 @@ class Camera(pygame.sprite.Group):
 		for sprite in sorted(self.sprites(), key = self.y_sort):
 			if isinstance(sprite, Player):
 				sprite_offset = sprite.rect.center - self.offset - offset_fix - player_offset_fix
+			elif isinstance(sprite, Enemy):
+				sprite_offset = sprite.rect.center - self.offset - offset_fix - player_offset_fix
 			else:
 				sprite_offset = sprite.rect.center - self.offset - offset_fix
 			self.display_surface.blit(sprite.image, sprite_offset)
@@ -156,6 +173,15 @@ class Camera(pygame.sprite.Group):
 		if self.fog == 1:
 			self.display_surface.blit(self.fow_surf, (0,0), special_flags = pygame.BLEND_MULT)
 	
+	# so that you're not passing player into every single sprite 
+	def enemy_update(self, player):
+		enemy_sprites = []
+		for sprite in self.sprites():
+			if isinstance(sprite, Enemy):
+				enemy_sprites.append(sprite)
+		for enemy in enemy_sprites:
+			enemy.enemy_update(player)
+
 	def y_sort(self, to_sort):
 		return to_sort.rect.centery
 	

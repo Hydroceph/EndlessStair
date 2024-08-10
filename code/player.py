@@ -3,8 +3,9 @@
 
 import pygame
 from graphics import png_collection
+from npc import Character
 
-class Player(pygame.sprite.Sprite):
+class Player(Character):
 	def __init__(self,pos,groups,obstacle_sprites,create_projectile):
 		super().__init__(groups)
 
@@ -20,12 +21,9 @@ class Player(pygame.sprite.Sprite):
 			'Wiz_Run': png_collection('./graphics/underworld/Heroes/Wizzard/Run/collection')
 		}
 		self.status = 'right'
-		self.frame_index = 0
-		self.animation_speed = 0.15
 		self.create_projectile = create_projectile
 
 		# movement + attack variables
-		self.direction = pygame.math.Vector2()
 		self.pri_attack = False
 		self.sec_attack = False
 		self.cooldown_time = 400 # in milliseconds
@@ -69,14 +67,12 @@ class Player(pygame.sprite.Sprite):
 	
 		# primary attack
 		if keys[pygame.K_SPACE] and self.pri_attack == False:
-			print('i am dumb')
 			self.create_projectile()
 			self.pri_attack = True
 			self.last_pri_attack_time = pygame.time.get_ticks()
 
 		# secondary attack
 		if keys[pygame.K_LSHIFT] and self.sec_attack == False:
-			print('i am dumber')
 			self.sec_attack = True
 			self.last_sec_attack_time = pygame.time.get_ticks()
 
@@ -106,41 +102,6 @@ class Player(pygame.sprite.Sprite):
 		if 'left' in self.status:
 			self.image = pygame.transform.flip(self.image,True,False)
 		self.rect = self.image.get_rect(center = self.rect_collision.center)
-
-	def move(self,speed):
-		# diagonal movement
-		if self.direction.magnitude() != 0:
-			self.direction = self.direction.normalize()
-
-		# movement with collision check
-		self.rect_collision.y += self.direction.y * speed
-		self.collision('vertical')
-		self.rect_collision.x += self.direction.x * speed
-		self.collision('horizontal')
-		self.rect.center = self.rect_collision.center
-
-	def collision(self,direction):
-		# up/down collision
-		if direction == 'vertical':
-			for sprite in self.obstacle_sprites:
-				if sprite.rect_collision.colliderect(self.rect_collision):
-					# moving down
-					if self.direction.y > 0:
-						self.rect_collision.bottom = sprite.rect_collision.top
-					# moving up
-					if self.direction.y < 0:
-						self.rect_collision.top = sprite.rect_collision.bottom
-
-		# left/right collision
-		if direction == 'horizontal':
-			for sprite in self.obstacle_sprites:
-				if sprite.rect_collision.colliderect(self.rect_collision):
-					# moving right
-					if self.direction.x > 0:
-						self.rect_collision.right = sprite.rect_collision.left
-					# moving left
-					if self.direction.x < 0:
-						self.rect_collision.left = sprite.rect_collision.right
 
 	def attack_cooldown(self):
 		current_time = pygame.time.get_ticks()

@@ -1,5 +1,5 @@
 
-""" Game Window and Graphical elements setup """
+""" Game Window, Graphical elements setup and data """
 
 import pygame
 from csv import reader
@@ -92,7 +92,7 @@ dung_room_0_graphics = {
 
 
 
-# weapon graphical data
+# weapon data
 
 bone_weapon_data = {
     'book': {'cooldown': 400, 'damage': 30, 'png': './graphics/underworld/Weapons/Bone/collection/Bone-Book.png'},
@@ -101,4 +101,13 @@ bone_weapon_data = {
     'staff': {'cooldown': 400, 'damage': 30, 'png': './graphics/underworld/Weapons/Bone/collection/Bone-Staff.png'},
     'sword': {'cooldown': 400, 'damage': 30, 'png': './graphics/underworld/Weapons/Bone/collection/Bone-Sword.png'},
     'wand': {'cooldown': 100, 'damage': 10, 'png': './graphics/underworld/Weapons/Bone/collection/Bone-Wand.png'}
+}
+
+
+
+
+
+# enemy data
+enemy_data = {
+	'orc': {'health': 100,'exp': 100,'damage': 20,'attack_type': 'slash', 'speed': 3, 'resistance': 3, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Run/collection' }
 }
