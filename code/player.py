@@ -2,7 +2,7 @@
 """ Player controlled sprite """
 
 import pygame
-from graphics import png_collection
+from graphics import png_collection, bone_weapon_data
 from npc import Character
 
 class Player(Character):
@@ -37,6 +37,9 @@ class Player(Character):
 		self.health = self.stats['health']
 		self.speed = self.stats['speed']
 		self.exp = 10
+		self.weapon_tier = bone_weapon_data
+		self.current_weapon_magic = 'staff'
+		self.current_weapon_melee = 'sword'
 
 	def input(self):
 		# checking for all inputs, using wasd for movement
@@ -106,16 +109,23 @@ class Player(Character):
 	def attack_cooldown(self):
 		current_time = pygame.time.get_ticks()
 
-		# player attacking
+		# player attacking - magic
 		if self.pri_attack == True:
-			if current_time - self.last_pri_attack_time >= self.cooldown_time:
+			if current_time - self.last_pri_attack_time >= self.cooldown_time + self.weapon_tier[self.current_weapon_magic]['cooldown']:
 				self.pri_attack = False
-
+		# melee
 		if self.sec_attack == True:
-			if current_time - self.last_sec_attack_time >= self.cooldown_time:
+			if current_time - self.last_sec_attack_time >= self.cooldown_time + self.weapon_tier[self.current_weapon_melee]['cooldown']:
 				self.sec_attack = False
 
 		# player being attacked?
+
+	def get_weapon_damage(self):
+		base_damage = self.stats['attack']
+		magic_weapon_damage = self.weapon_tier[self.current_weapon_magic]['damage']
+		melee_weapon_damage = self.weapon_tier[self.current_weapon_melee]['damage']
+
+		return ((magic_weapon_damage + base_damage), (melee_weapon_damage + base_damage))
 
 	def update(self):
 		self.input()

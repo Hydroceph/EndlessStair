@@ -14,9 +14,10 @@ class Level:
 		""" Sprite Groups """
 		self.visible_sprites = Camera()
 		self.obstacle_sprites = pygame.sprite.Group()
-		self.player_projectile_sprites = pygame.sprite.Group()
 		self.destructable_sprites = pygame.sprite.Group()
 		self.constraints_sprites = pygame.sprite.Group()
+		self.damage_sprites = pygame.sprite.Group()
+		self.damageable_sprites = pygame.sprite.Group()
 
 		# create spries based on tiled csv
 		self.create_map()
@@ -67,13 +68,13 @@ class Level:
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
 						if layer == 'mob':
 							if col == '1':
-								Enemy([self.visible_sprites],self.obstacle_sprites, 'orc', (x,y))
+								Enemy([self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'orc', (x,y))
 							if col == '2':
 								pass
 							if col == '4':
 								surface = dung_tiles_list[5]
 								surface.fill((250,250,250))
-								Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
+								Prop((x,y),[self.visible_sprites], surface)
 						if layer == 'constraints':
 							surface = spawns_list[0]
 							Prop((x,y),[self.constraints_sprites], surface)
@@ -81,14 +82,22 @@ class Level:
 
 	# player magic attack
 	def create_projectile(self):
-		Projectile(self.player,[self.visible_sprites, self.player_projectile_sprites], self.obstacle_sprites, self.destructable_sprites)
+		Projectile(self.player,[self.visible_sprites, self.damage_sprites], self.obstacle_sprites, self.destructable_sprites, self.damageable_sprites)
 
+	def player_attack(self):
+		if self.damage_sprites:
+			for damage_sprite in self.damage_sprites:
+				damaged_sprites = pygame.sprite.spritecollide(damage_sprite, self.damageable_sprites, False)
+				if damaged_sprites:
+					for damaged_sprite in damaged_sprites:
+						damaged_sprite.get_damage(self.player, 'magic')
 
 	# update and draw everything. Custom draw method to allow camera offset
 	def run(self):
 		self.visible_sprites.offset_draw(self.player)
 		self.visible_sprites.update()
 		self.visible_sprites.enemy_update(self.player)
+		self.player_attack()
 		self.gui.display(self.player)
 
 # Finds the vector distance of the player from the centre point of the window, and takes that offset away from each sprite so player stays central in camera

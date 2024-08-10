@@ -81,7 +81,7 @@ class CQCWeapon(Weapon):
 
 # player magic attack
 class Projectile(pygame.sprite.Sprite):
-    def __init__(self,player,groups, obstacle_sprites, destructable_sprites):
+    def __init__(self,player,groups, obstacle_sprites, destructable_sprites, damageable_sprites):
         super().__init__(groups)
         direction = (pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(WIDTH / 2, HEIGHT / 2))
         self.direction = direction.normalize()
@@ -95,6 +95,7 @@ class Projectile(pygame.sprite.Sprite):
 
         self.obstacle_sprites = obstacle_sprites
         self.destructable_sprites = destructable_sprites
+        self.damageable_sprites = damageable_sprites
 
     def update(self):
         # Move the weapon in the direction of the mouse
@@ -102,6 +103,11 @@ class Projectile(pygame.sprite.Sprite):
         self.rect.center = self.rect_collision.center
 
         for sprite in self.obstacle_sprites:
+            if sprite.rect_collision.colliderect(self.rect_collision):
+                self.kill()
+
+        for sprite in self.damageable_sprites:
+            print('hello')
             if sprite.rect_collision.colliderect(self.rect_collision):
                 self.kill()
 
@@ -216,6 +222,13 @@ class Enemy(Character):
 
         return direction
 
+    def get_damage(self, player, attack_type):
+        if attack_type == 'magic':
+            self.health -= player.get_weapon_damage()[0]
+
+    def check_heatlh(self):
+        if self.health <= 0:
+            self.kill()
 
     def enemy_update(self, player):
         self.direction_check(player)
@@ -252,4 +265,4 @@ class Enemy(Character):
         self.move(self.speed)
         self.animate()
         self.enemy_attack_cooldown()
-        
+        self.check_heatlh()
