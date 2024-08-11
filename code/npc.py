@@ -416,7 +416,7 @@ class PatrolEnemy(Enemy):
         elif self.patrol_direction == 'horizontal':
             self.direction = pygame.math.Vector2(1,0)
 
-        self.duration = random.randint(800,1200)
+        self.duration = random.randint(2000,4000)
         self.last_attack_time = pygame.time.get_ticks()
 
     def direction_check(self, player):
