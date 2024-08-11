@@ -4,6 +4,7 @@
 import pygame
 from graphics import TILESIZE, WIDTH, HEIGHT, bone_weapon_data, png_collection, enemy_data, attack_animation_data
 from math import atan2, degrees
+import random
 
 # static background props
 
@@ -71,7 +72,7 @@ class CQCWeapon(Weapon):
         mouse_angle = degrees(atan2(self.player_direction.x, self.player_direction.y))
         # different substractions from mouse angle to make the sword always be facing out, could alternatively have it as -180 to be always pointing out
         if self.player_direction.x > 0:
-            self.image = pygame.transform.rotozoom(self.weapon_surface, (mouse_angle - 270 ), 1)
+            self.image = pygame.transform.rotozoom(self.weapon_surface, (mouse_angle - 270), 1)
             
         else:
             self.image = pygame.transform.rotozoom(self.weapon_surface, ((mouse_angle - 90) * -1), 1)
@@ -165,7 +166,13 @@ class Melee(Projectile):
         self.rotate_animation()
         self.attack_duration()
 
-        
+
+
+
+# enemy attack
+
+# class EnemyProjectile(pygame.sprite.Sprite):
+
 
 # enemy sprites, with character super class (which is also the superclass for the player)
 class Character(pygame.sprite.Sprite):
@@ -324,8 +331,6 @@ class Enemy(EnemyCharacter):
             self.attacked_image = self.enemy_hit_image
             self.attacked_image = pygame.transform.scale_by(self.attacked_image, 3)
             self.image = self.attacked_image
-        else:
-            self.image.set_alpha(255)
 
         if self.animation_direction == 'left':
             self.image = pygame.transform.flip(self.image,True,False)
@@ -349,10 +354,43 @@ class Enemy(EnemyCharacter):
         self.enemy_attack_cooldown()
         self.check_heatlh()
 
-class PatrolEnemy(EnemyCharacter):
-    def __init__(self, groups, enemy_type, pos):
-        super().__init__(groups, enemy_type, pos)
+class PatrolEnemy(Enemy):
+    def __init__(self, groups, obstacle_sprites, enemy_type, pos, damage_player, constraints_sprites, patrol_direction):
+        super().__init__(groups, obstacle_sprites, enemy_type, pos, damage_player)
 
+        self.patrol_direction = patrol_direction
+        self.constraints_sprites = constraints_sprites
+        self.speed = random.randint(3,8)
+        if self.patrol_direction == 'vertical':
+            self.direction = pygame.math.Vector2(0,1)
+        elif self.patrol_direction == 'horizontal':
+            self.direction = pygame.math.Vector2(1,0)
+
+    def direction_check(self, player):
+        player_position = pygame.math.Vector2(player.rect.center)
+        enemy_position = pygame.math.Vector2(self.rect.center)
+        distance = (player_position - enemy_position).magnitude()
+        if distance > 0:
+            direction = (player_position - enemy_position).normalize()
+        else:
+            direction = pygame.math.Vector2()
+
+        if direction.x >= 0:
+            self.animation_direction = 'right'
+        else:
+            self.animation_direction = 'left'
+        
+
+        return direction
+
+    def enemy_update(self, player):
+        self.direction_check(player)
+
+    def constraints_reverse(self):
+        for constraint in self.constraints_sprites:
+            if constraint.rect_collision.colliderect(self.rect_collision):
+                self.speed *= -1
 
     def update(self):
-        self.move(self.speed)
+        super().update()
+        self.constraints_reverse()

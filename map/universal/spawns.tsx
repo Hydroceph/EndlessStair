@@ -8,12 +8,12 @@
   <image source="graphics/green-orc.png" width="16" height="16"/>
  </tile>
  <tile id="2">
-  <image source="graphics/grey_skeleton.png" width="16" height="16"/>
+  <image source="graphics/grey_skel_mage_horizontal.png" width="16" height="16"/>
  </tile>
  <tile id="3">
   <image source="graphics/red-stop.png" width="16" height="16"/>
  </tile>
  <tile id="4">
-  <image source="graphics/teal_skel_mage.png" width="16" height="16"/>
+  <image source="graphics/teal_skel_mage_vertical.png" width="16" height="16"/>
  </tile>
 </tileset>

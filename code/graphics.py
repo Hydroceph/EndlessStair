@@ -76,11 +76,11 @@ dung_room_0_layout = {
     'back_props_1': read_map_csv('./map/dungeon/room_0/dung_room_0_back_props_1.csv'),
     'back_props_2': read_map_csv('./map/dungeon/room_0/dung_room_0_back_props_2.csv'),
     'interact': read_map_csv('./map/dungeon/room_0/dung_room_0_interact.csv'),
-    'player': read_map_csv('./map/dungeon/room_0/dung_room_0_player.csv'),
-    'mob': read_map_csv('./map/dungeon/room_0/dung_room_0_mob.csv'),
     'constraints': read_map_csv('./map/dungeon/room_0/dung_room_0_constraints.csv'),
     'exit_1': read_map_csv('./map/dungeon/room_0/dung_room_0_exit_1.csv'),
-    'exit_2': read_map_csv('./map/dungeon/room_0/dung_room_0_exit_2.csv')
+    'exit_2': read_map_csv('./map/dungeon/room_0/dung_room_0_exit_2.csv'),
+    'player': read_map_csv('./map/dungeon/room_0/dung_room_0_player.csv'),
+    'mob': read_map_csv('./map/dungeon/room_0/dung_room_0_mob.csv')
 }
 
 dung_room_0_graphics = {
@@ -112,5 +112,6 @@ attack_animation_data = {
 
 # enemy data
 enemy_data = {
-	'orc': {'health': 100,'exp': 100,'damage': 20,'attack_type': 'slash', 'speed': 3, 'resistance': 3, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Run/collection', 'hit_graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Death/collection' }
+	'orc': {'health': 100,'exp': 100,'damage': 20,'attack_type': 'slash', 'speed': 3, 'resistance': 3, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Run/collection', 'hit_graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Death/collection' },
+    'skel_mage': {'health': 60,'exp': 100,'damage': 20,'attack_type': 'fireball', 'speed': 3, 'resistance': 1, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Skeleton Crew/Skeleton - Mage/Run/collection', 'hit_graphics': './graphics/underworld/Enemy/Skeleton Crew/Skeleton - Mage/Death/collection' }
 }

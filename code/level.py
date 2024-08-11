@@ -3,7 +3,7 @@
 
 import pygame 
 from graphics import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics
-from npc import Prop, Projectile, Melee, Enemy, StaticWeapon, CQCWeapon
+from npc import Prop, Projectile, Melee, Enemy, PatrolEnemy, StaticWeapon, CQCWeapon
 from player import Player
 from debug import debug
 from gui import GUI
@@ -42,42 +42,41 @@ class Level:
 							self.player = Player((x,y), [self.visible_sprites], self.obstacle_sprites, self.create_projectile, self.create_melee)
 							self.static_weapon = StaticWeapon(self.player, self.visible_sprites, 'staff')
 							self.cqc_weapon = CQCWeapon(self.player, self.visible_sprites, 'sword')
-						if layer == 'pillars':
+						elif layer == 'pillars':
 							surface = dung_tiles_list[int(col)]
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface, -16, -42)
-						if layer == 'invis_walls': # underneath the lighing
+						elif layer == 'invis_walls': # underneath the lighing
 							surface = dung_tiles_list[int(col)]
 							Prop((x,y),[self.obstacle_sprites], surface, -16, -42)
-						if layer == 'back_props_des': # destroyed versions of background props
+						elif layer == 'back_props_des': # destroyed versions of background props
 							surface = dung_props_list[int(col)]
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface, -32, -54)
-						if layer == 'back_props_1':
+						elif layer == 'back_props_1':
 							surface = dung_props_list[int(col)]
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites, self.destructable_sprites], surface, -32)
-						if layer == 'back_props_2': # the half blocks (like tops of barrels, tables that are visually not the whole tile)
+						elif layer == 'back_props_2': # the half blocks (like tops of barrels, tables that are visually not the whole tile)
 							surface = dung_props_list[int(col)]
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites, self.destructable_sprites], surface, -32, -54)
-						if layer == 'interact':
+						elif layer == 'interact':
 							surface = dung_props_list[int(col)]
 							Prop((x,y),[self.visible_sprites], surface)
-						if layer == 'exit_1':
+						elif layer == 'exit_1':
 							surface = dung_tiles_list[int(col)]
 							Prop((x,y),[self.visible_sprites], surface)
-						if layer == 'exit_2':
+						elif layer == 'exit_2':
 							surface = dung_tiles_list[int(col)]
 							Prop((x,y),[self.visible_sprites,self.obstacle_sprites], surface)
-						if layer == 'mob':
+						elif layer == 'constraints':
+							surface = spawns_list[0]
+							Prop((x,y),[self.constraints_sprites], surface)
+						elif layer == 'mob':
 							if col == '1':
 								Enemy([self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'orc', (x,y), self.damage_player)
 							if col == '2':
-								pass
+								PatrolEnemy([self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'horizontal')
 							if col == '4':
-								surface = dung_tiles_list[5]
-								surface.fill((250,250,250))
-								Prop((x,y),[self.visible_sprites], surface)
-						if layer == 'constraints':
-							surface = spawns_list[0]
-							Prop((x,y),[self.constraints_sprites], surface)
+								PatrolEnemy([self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'vertical')
+
 						
 
 	# player attack
@@ -94,6 +93,11 @@ class Level:
 				if damaged_sprites:
 					for damaged_sprite in damaged_sprites:
 						damaged_sprite.get_damage(self.player, 'magic')
+
+	# enemy attack
+
+	def create_enemy_projectile(self):
+		pass
 
 	def damage_player(self, damage_amount):
 		if self.player.player_can_be_hit:
