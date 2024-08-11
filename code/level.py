@@ -3,7 +3,7 @@
 
 import pygame 
 from graphics import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics
-from npc import Prop, Projectile, Melee, Enemy, PatrolEnemy, StaticWeapon, CQCWeapon
+from npc import Prop, Projectile, Melee, Enemy, PatrolEnemy, StaticWeapon, CQCWeapon, EnemyProjectile
 from player import Player
 from debug import debug
 from gui import GUI
@@ -73,9 +73,9 @@ class Level:
 							if col == '1':
 								Enemy([self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'orc', (x,y), self.damage_player)
 							if col == '2':
-								PatrolEnemy([self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'horizontal')
+								PatrolEnemy([self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'horizontal', self.create_enemy_projectile)
 							if col == '4':
-								PatrolEnemy([self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'vertical')
+								PatrolEnemy([self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'vertical', self.create_enemy_projectile)
 
 						
 
@@ -96,8 +96,8 @@ class Level:
 
 	# enemy attack
 
-	def create_enemy_projectile(self):
-		pass
+	def create_enemy_projectile(self, enemy_source):
+		EnemyProjectile(self.player,[self.visible_sprites], self.obstacle_sprites, self.destructable_sprites, enemy_source, self.damage_player)
 
 	def damage_player(self, damage_amount):
 		if self.player.player_can_be_hit:
