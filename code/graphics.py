@@ -119,6 +119,21 @@ dung_room_2_layout = {
     'mob': read_map_csv('./map/dungeon/room_2/dung_room_2_mob.csv')
 }
 
+dung_room_3_layout = {
+    'floor': read_map_csv('./map/dungeon/room_3/dung_room_3_floor.csv'),
+    'pillars': read_map_csv('./map/dungeon/room_3/dung_room_3_pillars.csv'),
+    'invis_walls': read_map_csv('./map/dungeon/room_3/dung_room_3_invis_walls.csv'),
+    'back_props_des': read_map_csv('./map/dungeon/room_3/dung_room_3_back_props_des.csv'),
+    'back_props_1': read_map_csv('./map/dungeon/room_3/dung_room_3_back_props_1.csv'),
+    'back_props_2': read_map_csv('./map/dungeon/room_3/dung_room_3_back_props_2.csv'),
+    'interact': read_map_csv('./map/dungeon/room_3/dung_room_3_interact.csv'),
+    'constraints': read_map_csv('./map/dungeon/room_3/dung_room_3_constraints.csv'),
+    'exit_1': read_map_csv('./map/dungeon/room_3/dung_room_3_exit_1.csv'),
+    'exit_2': read_map_csv('./map/dungeon/room_3/dung_room_3_exit_2.csv'),
+    'player': read_map_csv('./map/dungeon/room_3/dung_room_3_player.csv'),
+    'mob': read_map_csv('./map/dungeon/room_3/dung_room_3_mob.csv')
+}
+
 
 # weapon data
 

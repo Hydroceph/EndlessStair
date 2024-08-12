@@ -2,7 +2,7 @@
 """ Class which handles the drawing, updating and interaction between all the sprite groups """
 
 import pygame 
-from graphics import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics, dung_room_1_layout, dung_room_2_layout, png_collection
+from graphics import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics, dung_room_1_layout, dung_room_2_layout, dung_room_3_layout, png_collection
 from npc import Prop, Projectile, Melee, Enemy, PatrolEnemy, StaticWeapon, CQCWeapon, EnemyProjectile, TransitionSprite
 from player import Player
 from debug import debug
@@ -54,6 +54,8 @@ class Level:
 			layout = dung_room_1_layout
 		elif self.transition_target == 2:
 			layout = dung_room_2_layout
+		elif self.transition_target == 3:
+			layout = dung_room_3_layout
 		
 		dung_tiles_list = dung_room_0_graphics["dung_tiles"]
 		dung_props_list = dung_room_0_graphics["dung_props"]
@@ -90,9 +92,9 @@ class Level:
 						elif layer == 'exit_1': # actual transition tiles
 							surface = dung_tiles_list[int(col)]
 							TransitionSprite((x,y),[self.all_sprites, self.visible_sprites, self.transition_sprites], surface, target = self.transition_target)
-						# elif layer == 'exit_2': # obstacles to stop transition until room is complete
-						# 	surface = dung_tiles_list[int(col)]
-						# 	Prop((x,y),[self.visible_sprites,self.obstacle_sprites, self.exit_cover_sprites], surface)
+						elif layer == 'exit_2': # obstacles to stop transition until room is complete
+							surface = dung_tiles_list[int(col)]
+							Prop((x,y),[self.visible_sprites,self.obstacle_sprites, self.exit_cover_sprites], surface)
 						elif layer == 'constraints':
 							surface = spawns_list[0]
 							Prop((x,y),[self.all_sprites, self.constraints_sprites], surface)
@@ -127,6 +129,12 @@ class Level:
 		self.blackout_surface.set_alpha(self.blackout_progress)
 		self.display_surface.blit(self.blackout_surface, (0,0))
 
+	def exit_check(self):
+		# if damageable-sprites, which is all the enemy sprites, is empty, remove the obstacles on top of the exit so can continue to next level. == False doesn't work
+		if not self.damageable_sprites:
+			for exit_cover in self.exit_cover_sprites:
+				exit_cover.kill()
+
 	# player attack
 	def create_projectile(self):
 		Projectile(self.player,[self.all_sprites, self.visible_sprites, self.damage_sprites], self.obstacle_sprites, self.destructable_sprites, self.damageable_sprites)
@@ -158,6 +166,7 @@ class Level:
 		self.visible_sprites.update()
 		self.visible_sprites.enemy_update(self.player)
 		self.player_attack()
+		self.exit_check()
 		# level transition
 		self.transition_check()
 		# drawing
