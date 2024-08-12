@@ -15,8 +15,12 @@ class Prop(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect(topleft = pos)
 		self.rect_collision = self.rect.inflate(inflatex, inflatey)
 
+class TransitionSprite(Prop):
+    def __init__(self, pos, groups, surface=pygame.Surface((TILESIZE, TILESIZE)), inflatex=0, inflatey=0, target = 'dung_room_1'):
+        super().__init__(pos, groups, surface, inflatex, inflatey)
 
-
+        self.target = target
+        # could expand on this to import targets from Tiled, letting you go back and forth between levels, if added in the Overworld
 
 
 # player weapons
@@ -229,6 +233,7 @@ class Character(pygame.sprite.Sprite):
         self.frame_index = 0
         self.animation_speed = 0.15
         self.direction = pygame.math.Vector2()
+        self.blocked = False
 
     def move(self,speed):
             # diagonal movement
@@ -264,6 +269,13 @@ class Character(pygame.sprite.Sprite):
                         # moving left
                         if self.direction.x < 0:
                             self.rect_collision.left = sprite.rect_collision.right
+
+    def block(self):
+        self.blocked = True
+        self.direction = pygame.math.Vector2(0,0)
+
+    def unblock(self):
+        self.blocked = False
 
 class EnemyCharacter(Character):
     def __init__(self, groups, enemy_type, pos):
@@ -347,7 +359,6 @@ class Enemy(EnemyCharacter):
 
     def check_heatlh(self):
         if self.health <= 0:
-            print('uh oh')
             self.kill()
 
     def knockback(self):
@@ -454,3 +465,6 @@ class PatrolEnemy(Enemy):
         super().update()
         self.constraints_reverse()
         self.shoot_player()
+
+
+

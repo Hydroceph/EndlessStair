@@ -89,7 +89,35 @@ dung_room_0_graphics = {
     'spawns': cut_tileset('./map/universal/graphics/red-stop.png')
 }
 
+dung_room_1_layout = {
+    'floor': read_map_csv('./map/dungeon/room_1/dung_room_1_floor.csv'),
+    'pillars': read_map_csv('./map/dungeon/room_1/dung_room_1_pillars.csv'),
+    'invis_walls': read_map_csv('./map/dungeon/room_1/dung_room_1_invis_walls.csv'),
+    'back_props_des': read_map_csv('./map/dungeon/room_1/dung_room_1_back_props_des.csv'),
+    'back_props_1': read_map_csv('./map/dungeon/room_1/dung_room_1_back_props_1.csv'),
+    'back_props_2': read_map_csv('./map/dungeon/room_1/dung_room_1_back_props_2.csv'),
+    'interact': read_map_csv('./map/dungeon/room_1/dung_room_1_interact.csv'),
+    'constraints': read_map_csv('./map/dungeon/room_1/dung_room_1_constraints.csv'),
+    'exit_1': read_map_csv('./map/dungeon/room_1/dung_room_1_exit_1.csv'),
+    'exit_2': read_map_csv('./map/dungeon/room_1/dung_room_1_exit_2.csv'),
+    'player': read_map_csv('./map/dungeon/room_1/dung_room_1_player.csv'),
+    'mob': read_map_csv('./map/dungeon/room_1/dung_room_1_mob.csv')
+}
 
+dung_room_2_layout = {
+    'floor': read_map_csv('./map/dungeon/room_2/dung_room_2_floor.csv'),
+    'pillars': read_map_csv('./map/dungeon/room_2/dung_room_2_pillars.csv'),
+    'invis_walls': read_map_csv('./map/dungeon/room_2/dung_room_2_invis_walls.csv'),
+    'back_props_des': read_map_csv('./map/dungeon/room_2/dung_room_2_back_props_des.csv'),
+    'back_props_1': read_map_csv('./map/dungeon/room_2/dung_room_2_back_props_1.csv'),
+    'back_props_2': read_map_csv('./map/dungeon/room_2/dung_room_2_back_props_2.csv'),
+    'interact': read_map_csv('./map/dungeon/room_2/dung_room_2_interact.csv'),
+    'constraints': read_map_csv('./map/dungeon/room_2/dung_room_2_constraints.csv'),
+    'exit_1': read_map_csv('./map/dungeon/room_2/dung_room_2_exit_1.csv'),
+    'exit_2': read_map_csv('./map/dungeon/room_2/dung_room_2_exit_2.csv'),
+    'player': read_map_csv('./map/dungeon/room_2/dung_room_2_player.csv'),
+    'mob': read_map_csv('./map/dungeon/room_2/dung_room_2_mob.csv')
+}
 
 
 # weapon data

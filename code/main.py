@@ -22,7 +22,9 @@ class Game:
 			self.screen.fill('black')
 			# draw and update everything in Level
 			self.level.run() 
+			# update and display onto the actual screen
 			pygame.display.update()
+			# set max framerate
 			self.clock.tick(FPS)
 
 if __name__ == '__main__':

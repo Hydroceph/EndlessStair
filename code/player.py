@@ -144,8 +144,10 @@ class Player(Character):
 		return ((magic_weapon_damage + base_damage), (melee_weapon_damage + base_damage))
 
 	def update(self):
-		self.input()
+		if self.blocked == False:
+			self.input()
+			self.move(self.speed)
 		self.attack_cooldown()
 		self.action_status()
 		self.animate()
-		self.move(self.speed)
+		
