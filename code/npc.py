@@ -2,7 +2,7 @@
 """ NPC sprites: props, weapons and enemies """
 
 import pygame
-from graphics import TILESIZE
+from game_data import TILESIZE
 
 # static background props
 

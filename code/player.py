@@ -3,7 +3,7 @@
 
 import pygame
 from game_data import WIDTH, HEIGHT, png_collection, bone_weapon_data, attack_animation_data
-from npc import Character
+from character import Character
 from math import atan2, degrees
 
 class Player(Character):
