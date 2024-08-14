@@ -38,8 +38,6 @@ class Level:
 		# GUI
 		self.gui = GUI()
 
-
-
 	# create sprites based on map from tiled
 	def create_map(self):
 		# clear the map, so can be used in transitions to next level
@@ -100,13 +98,12 @@ class Level:
 							Prop((x,y),[self.all_sprites, self.constraints_sprites], surface)
 						elif layer == 'mob':
 							if col == '1':
-								Enemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'orc', (x,y), self.damage_player)
+								Enemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'orc', (x,y), self.damage_player, self.add_exp)
 							if col == '2':
-								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'horizontal', self.create_enemy_projectile)
+								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'horizontal', self.create_enemy_projectile, self.add_exp)
 							if col == '4':
-								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'vertical', self.create_enemy_projectile)
-
-						
+								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'vertical', self.create_enemy_projectile, self.add_exp)
+				
 	# level transitions
 	def transition_check(self):
 		for transition_sprite in self.transition_sprites:
@@ -149,6 +146,10 @@ class Level:
 				if damaged_sprites:
 					for damaged_sprite in damaged_sprites:
 						damaged_sprite.get_damage(self.player, 'magic')
+
+	def add_exp(self, amount):
+		self.player.exp += amount
+
 
 	# enemy attack
 	def create_enemy_projectile(self, enemy_source):
@@ -251,7 +252,6 @@ class Camera(pygame.sprite.Group):
 		self.display_surface.blit(self.floor_light_surface, floor_light_offset)
 
 		# make new sprite rectangle to blit image onto, which will be in different position based on offset above
-
 		for sprite in sorted(self.sprites(), key = self.y_sort):
 			if isinstance(sprite, Player):
 				sprite_offset = sprite.rect.center - self.offset - offset_fix - player_offset_fix

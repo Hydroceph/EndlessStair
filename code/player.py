@@ -39,9 +39,10 @@ class Player(Character):
 
 		# stats
 		self.stats = {'health': 100, 'attack': 10, 'speed': 6}
+		self.upgrade_cost = {'health': 100, 'attack': 100, 'speed': 100}
 		self.health = self.stats['health']
 		self.speed = self.stats['speed']
-		self.exp = 10
+		self.exp = 0
 		self.weapon_tier = bone_weapon_data
 		self.current_weapon_magic = 'staff'
 		self.current_weapon_melee = 'sword'

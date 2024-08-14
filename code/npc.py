@@ -302,7 +302,7 @@ class EnemyCharacter(Character):
         self.rect_collision = self.rect.inflate(-8, -16)
 
 class Enemy(EnemyCharacter):
-    def __init__(self, groups, obstacle_sprites, enemy_type, pos, damage_player):
+    def __init__(self, groups, obstacle_sprites, enemy_type, pos, damage_player, add_exp):
         super().__init__(groups, enemy_type, pos)
 
 
@@ -320,6 +320,7 @@ class Enemy(EnemyCharacter):
         self.last_hit_time = None
         self.invincible_duration = 300
         self.enemy_hit_image = png_collection(enemy_data[enemy_type]['hit_graphics'])[0]
+        self.add_exp = add_exp
     
     def direction_check(self, player):
         player_position = pygame.math.Vector2(player.rect.center)
@@ -332,12 +333,15 @@ class Enemy(EnemyCharacter):
 
         if distance <= self.attack_radius:
             self.speed = 3
+            self.animation_speed = 0.15
             self.status = 'attack'
         elif distance <= self.notice_radius:
             self.speed = 3
+            self.animation_speed = 0.15
             self.status = 'move'
         else:
             self.speed = 1
+            self.animation_speed = 0.05
             self.status = 'slow_move'
 
         if direction.x >= 0:
@@ -359,6 +363,7 @@ class Enemy(EnemyCharacter):
 
     def check_heatlh(self):
         if self.health <= 0:
+            self.add_exp(self.exp)
             self.kill()
 
     def knockback(self):
@@ -381,8 +386,9 @@ class Enemy(EnemyCharacter):
 
     def animate(self):
         self.frame_index += self.animation_speed
-        if self.frame_index > len(self.image_list):
+        if self.frame_index >= len(self.image_list) - 1e-6:
             self.frame_index = 0
+        print(self.frame_index)
         self.image = self.image_list[int(self.frame_index)]
         self.image = pygame.transform.scale_by(self.image, 3)
 
@@ -415,8 +421,8 @@ class Enemy(EnemyCharacter):
         self.check_heatlh()
 
 class PatrolEnemy(Enemy):
-    def __init__(self, groups, obstacle_sprites, enemy_type, pos, damage_player, constraints_sprites, patrol_direction, create_enemy_projectile):
-        super().__init__(groups, obstacle_sprites, enemy_type, pos, damage_player)
+    def __init__(self, groups, obstacle_sprites, enemy_type, pos, damage_player, constraints_sprites, patrol_direction, create_enemy_projectile, add_exp):
+        super().__init__(groups, obstacle_sprites, enemy_type, pos, damage_player, add_exp)
 
         self.patrol_direction = patrol_direction
         self.constraints_sprites = constraints_sprites
