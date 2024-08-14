@@ -3,8 +3,8 @@
 
 import pygame 
 from graphics import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics, dung_room_1_layout, dung_room_2_layout, dung_room_3_layout, png_collection
-from npc import Prop, Projectile, Melee, Enemy, PatrolEnemy, StaticWeapon, CQCWeapon, EnemyProjectile, TransitionSprite
-from player import Player
+from npc import Prop, Enemy, PatrolEnemy, EnemyProjectile, TransitionSprite
+from player import Player, Projectile, Melee, StaticWeapon, CQCWeapon
 from debug import debug
 from gui import GUI
 

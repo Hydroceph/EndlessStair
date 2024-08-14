@@ -1,9 +1,10 @@
 
-""" Player controlled sprite """
+""" Player controlled sprite, player weapons and player attacks """
 
 import pygame
-from graphics import png_collection, bone_weapon_data
+from game_data import WIDTH, HEIGHT, png_collection, bone_weapon_data, attack_animation_data
 from npc import Character
+from math import atan2, degrees
 
 class Player(Character):
 	def __init__(self, pos, groups, obstacle_sprites, create_projectile, create_melee):
@@ -152,3 +153,149 @@ class Player(Character):
 		self.action_status()
 		self.animate()
 		
+# player weapons
+
+class Weapon(pygame.sprite.Sprite):
+    def __init__(self, player, groups, weapontype, offset_fix_x = 16, offset_fix_y = 0):
+        super().__init__(groups)
+
+        self.player = player
+        self.distance_from_player = 60
+        self.distance_from_player_offset = pygame.math.Vector2(offset_fix_x, offset_fix_y)
+        self.player_direction = pygame.Vector2(1,0)
+        
+
+        self.weapon = bone_weapon_data[weapontype]['png']
+        self.weapon_surface = pygame.image.load(self.weapon).convert_alpha()
+        self.weapon_surface = pygame.transform.scale_by(self.weapon_surface, 2)
+        self.image = self.weapon_surface
+        self.rect = self.image.get_rect(center = self.player.rect.center + self.distance_from_player_offset + self.player_direction * self.distance_from_player)
+
+# magic weapon, always held behind player
+class StaticWeapon(Weapon):
+    def __init__(self, player, groups, weapontype):
+        super().__init__(player, groups, weapontype)
+
+        self.distance_from_player = 30
+
+    def update(self):
+
+        if 'right' in self.player.status:
+            self.rect.center = self.player.rect.center + self.distance_from_player_offset + self.player_direction * (self.distance_from_player * - 1)
+        else:
+            self.rect.center = self.player.rect.center + self.distance_from_player_offset + self.player_direction * self.distance_from_player
+
+# melee weapon, always held pointing towards mouse
+class CQCWeapon(Weapon):
+    def __init__(self, player, groups, weapontype):
+        super().__init__(player, groups, weapontype)
+
+        self.distance_from_player = 40
+        self.cqc_distance_from_player_offset = pygame.math.Vector2(0,0)
+        
+    def update(self):
+        self.weapon_direction()
+        self.rotate_weapon()
+        self.rect.center = self.player.rect.center + self.distance_from_player_offset - self.cqc_distance_from_player_offset + self.player_direction * self.distance_from_player
+
+    def weapon_direction(self):
+        direction = (pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(WIDTH / 2, HEIGHT / 2))
+        self.player_direction = direction.normalize()
+        
+    def rotate_weapon(self):
+        mouse_angle = degrees(atan2(self.player_direction.x, self.player_direction.y))
+        # different substractions from mouse angle to make the sword always be facing out, could alternatively have it as -180 to be always pointing out
+        if self.player_direction.x > 0:
+            self.image = pygame.transform.rotozoom(self.weapon_surface, (mouse_angle - 270), 1)
+            
+        else:
+            self.image = pygame.transform.rotozoom(self.weapon_surface, ((mouse_angle - 90) * -1), 1)
+            self.image = pygame.transform.flip(self.image, True, False)
+
+
+
+
+# player attack
+class Projectile(pygame.sprite.Sprite):
+    def __init__(self,player,groups, obstacle_sprites, destructable_sprites, damageable_sprites, speed = 5, attack_type = 'nova_ball', player_distance = 75):
+        super().__init__(groups)
+        direction = (pygame.math.Vector2(pygame.mouse.get_pos()) - pygame.math.Vector2(WIDTH / 2, HEIGHT / 2))
+        self.direction = direction.normalize()
+        self.speed = speed
+        
+        self.attack_type = attack_type
+        self.image_list = png_collection(attack_animation_data[self.attack_type])
+        self.image = self.image_list[0]
+        if self.attack_type == 'nova_ball':
+            self.image = pygame.transform.scale_by(self.image, 0.5)
+
+        self.rect = self.image.get_rect(center = player.rect.center + self.direction * player_distance)
+        self.rect_collision = self.rect.inflate(-4, -4)
+
+        self.frame_index = 0
+        self.animation_speed = 0.3
+
+        self.obstacle_sprites = obstacle_sprites
+        self.destructable_sprites = destructable_sprites
+        self.damageable_sprites = damageable_sprites
+
+    def animate(self):
+        self.frame_index += self.animation_speed
+        animation = self.image_list
+        if self.frame_index > len(animation):
+            self.frame_index = 0
+        self.image_original = animation[int(self.frame_index)]
+        self.image = self.image_original
+        if self.attack_type == 'nova_ball':
+            self.image = pygame.transform.scale_by(self.image, 0.5)
+
+        self.rect = self.image.get_rect(center = self.rect_collision.center)
+
+    def update(self):
+        # Move the projectile in the direction of the mouse
+        self.rect_collision.center += self.direction * self.speed
+        self.rect.center = self.rect_collision.center
+
+        self.animate()
+
+        for sprite in self.obstacle_sprites:
+            if sprite.rect_collision.colliderect(self.rect_collision):
+                if self.attack_type != 'stab':
+                    self.kill()
+
+        for sprite in self.damageable_sprites:
+            if sprite.rect_collision.colliderect(self.rect_collision):
+                if self.attack_type != 'stab':
+                    self.kill()
+
+        for sprite in self.destructable_sprites:
+            if sprite.rect_collision.colliderect(self.rect_collision):
+                sprite.kill()
+                if self.attack_type != 'stab':
+                    self.kill()
+
+class Melee(Projectile):
+    def __init__(self, player, groups, obstacle_sprites, destructable_sprites, damageable_sprites, speed=0, attack_type='stab', player_distance = 100):
+        super().__init__(player, groups, obstacle_sprites, destructable_sprites, damageable_sprites, speed, attack_type, player_distance)
+        self.duration = 400
+        self.attack_time = pygame.time.get_ticks()
+        self.animation_speed = 0.3
+
+    def attack_duration(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.attack_time >= self.duration:
+            self.kill()
+
+    def rotate_animation(self):
+        mouse_angle = degrees(atan2(self.direction.x, self.direction.y))
+        if self.direction.x > 0:
+            self.image = pygame.transform.rotozoom(self.image_original, (mouse_angle - 135), 1)
+            
+        else:
+            self.image = pygame.transform.rotozoom(self.image_original, ((mouse_angle- 225) * -1), 1)
+            self.image = pygame.transform.flip(self.image, True, False)
+
+    def update(self):
+        super().update()
+        self.rotate_animation()
+        self.attack_duration()

@@ -1,5 +1,5 @@
 
-""" Game Window, Graphical elements setup and data """
+""" Game Window, Graphical elements setup and dictionary data (weapon damage dict, enemy health dict etc.) """
 
 import pygame
 from csv import reader
