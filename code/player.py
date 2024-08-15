@@ -7,7 +7,7 @@ from character import Character
 from math import atan2, degrees
 
 class Player(Character):
-	def __init__(self, pos, groups, obstacle_sprites, create_projectile, create_melee):
+	def __init__(self, pos, groups, obstacle_sprites, interactable_sprites, create_projectile, create_melee, max_stats, current_stats, exp):
 		super().__init__(groups)
 
 		# sprite initial creation
@@ -37,13 +37,14 @@ class Player(Character):
 		self.last_sec_attack_time = None
 
 		self.obstacle_sprites = obstacle_sprites
+		self.interactable_sprites = interactable_sprites
 
 		# stats
-		self.stats = {'health': 100, 'attack': 10, 'speed': 6}
-		self.upgrade_cost = {'health': 100, 'attack': 100, 'speed': 100}
-		self.health = self.stats['health']
-		self.speed = self.stats['speed']
-		self.exp = 0
+		self.stats = max_stats
+		self.current_stats = current_stats
+		self.health = self.current_stats['health']
+		self.speed = self.current_stats['speed']
+		self.exp = exp
 		self.weapon_tier = bone_weapon_data
 		self.current_weapon_magic = 'staff'
 		self.current_weapon_melee = 'sword'
@@ -144,15 +145,30 @@ class Player(Character):
 		melee_weapon_damage = self.weapon_tier[self.current_weapon_melee]['damage']
 
 		return ((magic_weapon_damage + base_damage), (melee_weapon_damage + base_damage))
+      
+	def health_pickup(self):
+		for pickup in self.interactable_sprites:
+			if pickup.rect_collision.colliderect(self.rect_collision):
+				self.health += 20
+				if self.health >= self.stats['health']:
+					self.health = self.stats['health']
+				pickup.kill()
 
 	def update(self):
 		if self.blocked == False:
 			self.input()
 			self.move(self.speed)
+		self.health_pickup()
 		self.attack_cooldown()
 		self.action_status()
 		self.animate()
 		
+
+
+
+
+
+
 # player weapons
 
 class Weapon(pygame.sprite.Sprite):
@@ -211,6 +227,9 @@ class CQCWeapon(Weapon):
         else:
             self.image = pygame.transform.rotozoom(self.weapon_surface, ((mouse_angle - 90) * -1), 1)
             self.image = pygame.transform.flip(self.image, True, False)
+
+
+
 
 
 

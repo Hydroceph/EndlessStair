@@ -26,6 +26,12 @@ EXP_FONT_COLOUR = 'yellow'
 BAR_BACKGROUND_COLOUR = '#444444'
 BAR_BORDER_COLOUR = '#333333'
 
+# level up screen
+TEXT_COLOR_SELECTED = '#111111'
+BAR_COLOUR = '#EEEEEE'
+BAR_COLOUR_SELECTED = '#111111'
+UPGRADE_BG_COLOUR_SELECTED = '#EEEEEE'
+
 # functions to import tilesets/image collections for grahpical elements
 def read_map_csv(path):
     room_map = []
@@ -156,5 +162,11 @@ attack_animation_data = {
 # enemy data
 enemy_data = {
 	'orc': {'health': 100,'exp': 50,'damage': 20,'attack_type': 'slash', 'speed': 3, 'resistance': 3, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Run/collection', 'hit_graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Death/collection' },
-    'skel_mage': {'health': 60,'exp': 50,'damage': 20,'attack_type': 'fireball', 'speed': 3, 'resistance': 1, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Skeleton Crew/Skeleton - Mage/Run/collection', 'hit_graphics': './graphics/underworld/Enemy/Skeleton Crew/Skeleton - Mage/Death/collection' }
+    'skel_mage': {'health': 20,'exp': 50,'damage': 20,'attack_type': 'fireball', 'speed': 3, 'resistance': 1, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Skeleton Crew/Skeleton - Mage/Run/collection', 'hit_graphics': './graphics/underworld/Enemy/Skeleton Crew/Skeleton - Mage/Death/collection' }
 }
+
+
+
+# player data
+
+player_stats = {'health': 100, 'attack': 10, 'speed': 6}

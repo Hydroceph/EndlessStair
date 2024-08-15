@@ -18,6 +18,9 @@ class Game:
 				if event.type == pygame.QUIT:
 					pygame.quit()
 					sys.exit()
+				if event.type == pygame.KEYDOWN:
+					if event.key == pygame.K_y:
+						self.level.toggle_upgrade()
 
 			self.screen.fill('black')
 			# draw and update everything in Level

@@ -93,7 +93,7 @@ class Enemy(EnemyCharacter):
             self.last_hit_time = pygame.time.get_ticks()
             self.can_be_attacked = False
 
-    def check_heatlh(self):
+    def check_health(self):
         if self.health <= 0:
             self.add_exp(self.exp)
             self.kill()
@@ -120,7 +120,6 @@ class Enemy(EnemyCharacter):
         self.frame_index += self.animation_speed
         if self.frame_index >= len(self.image_list) - 1e-6:
             self.frame_index = 0
-        print(self.frame_index)
         self.image = self.image_list[int(self.frame_index)]
         self.image = pygame.transform.scale_by(self.image, 3)
 
@@ -150,7 +149,7 @@ class Enemy(EnemyCharacter):
         self.move(self.speed)
         self.animate()
         self.enemy_attack_cooldown()
-        self.check_heatlh()
+        self.check_health()
 
 
 # skel mage

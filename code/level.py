@@ -2,12 +2,13 @@
 """ Class which handles the drawing, updating and interaction between all the sprite groups """
 
 import pygame 
-from game_data import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics, dung_room_1_layout, dung_room_2_layout, dung_room_3_layout, png_collection
+from game_data import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics, dung_room_1_layout, dung_room_2_layout, dung_room_3_layout, png_collection, player_stats
 from npc import Prop,  TransitionSprite
 from enemy import Enemy, PatrolEnemy, EnemyProjectile
 from player import Player, Projectile, Melee, StaticWeapon, CQCWeapon
 from debug import debug
 from gui import GUI
+from level_up import LevelUp
 
 class Level:
 	def __init__(self):
@@ -22,6 +23,12 @@ class Level:
 		self.damageable_sprites = pygame.sprite.Group()
 		self.exit_cover_sprites = pygame.sprite.Group()
 		self.transition_sprites = pygame.sprite.Group()
+		self.interactable_sprites = pygame.sprite.Group()
+
+		# player stats
+		self.max_stats = player_stats
+		self.current_stats = self.max_stats
+		self.exp = 0
 
 		# level transition
 		self.display_surface = pygame.display.get_surface()
@@ -32,19 +39,25 @@ class Level:
 		self.blackout_direction = -1
 		self.blackout_speed = 20
 
-
 		# create sprites based on tiled csv
-		self.create_map()
+		self.create_map(self.max_stats, self.current_stats)
 
 		# GUI
 		self.gui = GUI()
 
+		# pause screen
+		self.game_paused = False
+		
+
 	# create sprites based on map from tiled
-	def create_map(self):
+	def create_map(self, max_stats, current_stats):
 		# clear the map, so can be used in transitions to next level
 		for each_sprite in self.all_sprites:
 			each_sprite.kill()
 
+		# stats import from previous dungeon room
+		self.max_stats = max_stats
+		self.current_stats = current_stats
 
 		# import map info from Tiled
 		if self.transition_target == 0:
@@ -67,7 +80,7 @@ class Level:
 						x = col_index * TILESIZE
 						y = row_index * TILESIZE
 						if layer == 'player':
-							self.player = Player((x,y), [self.all_sprites, self.visible_sprites], self.obstacle_sprites, self.create_projectile, self.create_melee)
+							self.player = Player((x,y), [self.all_sprites, self.visible_sprites], self.obstacle_sprites, self.interactable_sprites, self.create_projectile, self.create_melee, self.max_stats, self.current_stats, self.exp)
 							self.static_weapon = StaticWeapon(self.player, [self.all_sprites, self.visible_sprites], 'staff')
 							self.cqc_weapon = CQCWeapon(self.player, [self.all_sprites, self.visible_sprites], 'sword')
 						elif layer == 'pillars':
@@ -87,7 +100,7 @@ class Level:
 							Prop((x,y),[self.all_sprites, self.visible_sprites,self.obstacle_sprites, self.destructable_sprites], surface, -32, -54)
 						elif layer == 'interact':
 							surface = dung_props_list[int(col)]
-							Prop((x,y),[self.all_sprites, self.visible_sprites], surface)
+							Prop((x,y),[self.all_sprites, self.visible_sprites, self.interactable_sprites], surface)
 						elif layer == 'exit_1': # actual transition tiles
 							surface = dung_tiles_list[int(col)]
 							TransitionSprite((x,y),[self.all_sprites, self.visible_sprites, self.transition_sprites], surface, target = self.transition_target)
@@ -104,7 +117,10 @@ class Level:
 								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'horizontal', self.create_enemy_projectile, self.add_exp)
 							if col == '4':
 								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'vertical', self.create_enemy_projectile, self.add_exp)
-				
+
+		# do this inside create map so it updates the player exp stats
+		self.level_up = LevelUp(self.player)
+
 	# level transitions
 	def transition_check(self):
 		for transition_sprite in self.transition_sprites:
@@ -120,7 +136,8 @@ class Level:
 			self.blackout_progress += self.blackout_speed
 			if self.blackout_progress >= 255:
 				self.transition_target += 1
-				self.create_map()
+				self.get_current_stats()
+				self.create_map(self.max_stats, self.current_stats)
 				self.blackout_mode = 'clear'
 
 		self.blackout_progress = max(0, min(self.blackout_progress, 255))
@@ -132,6 +149,11 @@ class Level:
 		if not self.damageable_sprites:
 			for exit_cover in self.exit_cover_sprites:
 				exit_cover.kill()
+
+	def get_current_stats(self):
+		self.max_stats = self.player.stats
+		self.current_stats = {'health': self.player.health, 'attack': self.player.stats['attack'], 'speed': self.player.speed}
+		self.exp = self.player.exp
 
 	# player attack
 	def create_projectile(self):
@@ -151,6 +173,14 @@ class Level:
 	def add_exp(self, amount):
 		self.player.exp += amount
 
+	# level up
+
+	def toggle_upgrade(self):
+		self.game_paused = not self.game_paused
+
+	def upgrade(self):
+		pass
+
 
 	# enemy attack
 	def create_enemy_projectile(self, enemy_source):
@@ -162,18 +192,24 @@ class Level:
 			self.player.player_can_be_hit = False
 			self.player.last_hit_time = pygame.time.get_ticks()
 
-	# update and draw everything. Custom offset_draw method to allow camera offset
+	# update and draw everything. Custom offset_draw method to allow camera offset. Order matters, further down is drawn on top
 	def run(self):
-		# sprite updates
-		self.visible_sprites.update()
-		self.visible_sprites.enemy_update(self.player)
-		self.player_attack()
-		self.exit_check()
-		# level transition
-		self.transition_check()
 		# drawing
 		self.visible_sprites.offset_draw(self.player, self.transition_target)
 		self.gui.display(self.player)
+
+		# check if display upgrade screen or not. If upgrading, pause everything else on the screen whilst in upgrade menu
+		if self.game_paused == True:
+			self.level_up.display_level_up()
+		else:
+			# sprite updates
+			self.visible_sprites.update()
+			self.visible_sprites.enemy_update(self.player)
+			self.player_attack()
+
+		# level transition
+		self.exit_check()
+		self.transition_check()
 
 		# screen blackout for transition, MUST be last
 		self.blackout_screen()
