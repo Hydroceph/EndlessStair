@@ -2,7 +2,7 @@
 """ Class which handles the drawing, updating and interaction between all the sprite groups """
 
 import pygame 
-from game_data import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics, dung_room_1_layout, dung_room_2_layout, dung_room_3_layout, png_collection, player_stats
+from game_data import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics, dung_room_1_layout, dung_room_2_layout, dung_room_3_layout, png_collection, player_stats, dung_room_spawn_layout
 from npc import Prop,  TransitionSprite
 from enemy import Enemy, PatrolEnemy, EnemyProjectile
 from player import Player, Projectile, Melee, StaticWeapon, CQCWeapon
@@ -61,12 +61,14 @@ class Level:
 
 		# import map info from Tiled
 		if self.transition_target == 0:
-			layout = dung_room_0_layout
+			layout = dung_room_spawn_layout
 		elif self.transition_target == 1:
-			layout = dung_room_1_layout
+			layout = dung_room_0_layout
 		elif self.transition_target == 2:
-			layout = dung_room_2_layout
+			layout = dung_room_1_layout
 		elif self.transition_target == 3:
+			layout = dung_room_2_layout
+		elif self.transition_target == 4:
 			layout = dung_room_3_layout
 		
 		dung_tiles_list = dung_room_0_graphics["dung_tiles"]
@@ -117,8 +119,11 @@ class Level:
 								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'horizontal', self.create_enemy_projectile, self.add_exp)
 							if col == '4':
 								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'vertical', self.create_enemy_projectile, self.add_exp)
+							if col == '5':
+								# tutorial guide spawn here
+								pass
 
-		# do this inside create map so it updates the player exp stats
+		# do this inside create map so it updates the player exp stats between dun rooms
 		self.level_up = LevelUp(self.player)
 
 	# level transitions

@@ -38,7 +38,6 @@ class LevelUp:
                 self.choice_time = pygame.time.get_ticks()
 
         if keys[pygame.K_SPACE] and self.can_change_choice:
-            print (self.player.exp)
             if self.player.exp >= 100:
                 self.can_change_choice = False
                 self.choice_time = pygame.time.get_ticks()

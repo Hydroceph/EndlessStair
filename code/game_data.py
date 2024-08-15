@@ -140,6 +140,21 @@ dung_room_3_layout = {
     'mob': read_map_csv('./map/dungeon/room_3/dung_room_3_mob.csv')
 }
 
+dung_room_spawn_layout = {
+    'floor': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_floor.csv'),
+    'pillars': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_pillars.csv'),
+    'invis_walls': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_invis_walls.csv'),
+    'back_props_des': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_back_props_des.csv'),
+    'back_props_1': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_back_props_1.csv'),
+    'back_props_2': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_back_props_2.csv'),
+    'interact': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_interact.csv'),
+    'constraints': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_constraints.csv'),
+    'exit_1': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_exit_1.csv'),
+    'exit_2': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_exit_2.csv'),
+    'player': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_player.csv'),
+    'mob': read_map_csv('./map/dungeon/spawn_room/dung_room_spawn_mob.csv')
+}
+
 
 # weapon data
 
