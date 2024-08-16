@@ -131,6 +131,7 @@ class Enemy(EnemyCharacter):
 
         if self.animation_direction == 'left':
             self.image = pygame.transform.flip(self.image,True,False)
+            
         self.rect = self.image.get_rect(center = self.rect_collision.center)
 
     def enemy_attack_cooldown(self):

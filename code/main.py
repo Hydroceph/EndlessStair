@@ -21,6 +21,9 @@ class Game:
 				if event.type == pygame.KEYDOWN:
 					if event.key == pygame.K_y:
 						self.level.toggle_upgrade()
+					if event.key == pygame.K_t:
+						self.level.dialogue_check()
+						print('dialogue main')
 
 			self.screen.fill('black')
 			# draw and update everything in Level

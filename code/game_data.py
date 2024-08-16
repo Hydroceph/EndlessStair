@@ -26,12 +26,6 @@ EXP_FONT_COLOUR = 'yellow'
 BAR_BACKGROUND_COLOUR = '#444444'
 BAR_BORDER_COLOUR = '#333333'
 
-# level up screen
-TEXT_COLOR_SELECTED = '#111111'
-BAR_COLOUR = '#EEEEEE'
-BAR_COLOUR_SELECTED = '#111111'
-UPGRADE_BG_COLOUR_SELECTED = '#EEEEEE'
-
 # functions to import tilesets/image collections for grahpical elements
 def read_map_csv(path):
     room_map = []

@@ -2,8 +2,8 @@
 """ Class which handles the drawing, updating and interaction between all the sprite groups """
 
 import pygame 
-from game_data import TILESIZE, WIDTH, HEIGHT, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics, dung_room_1_layout, dung_room_2_layout, dung_room_3_layout, png_collection, player_stats, dung_room_spawn_layout
-from npc import Prop,  TransitionSprite
+from game_data import TILESIZE, WIDTH, HEIGHT, FONT, FONT_SIZE, FOG_COLOUR, dung_room_0_layout, dung_room_0_graphics, dung_room_1_layout, dung_room_2_layout, dung_room_3_layout, png_collection, player_stats, dung_room_spawn_layout
+from npc import Prop,  TransitionSprite, Guide, check_dialogue_connection, DialogueTree
 from enemy import Enemy, PatrolEnemy, EnemyProjectile
 from player import Player, Projectile, Melee, StaticWeapon, CQCWeapon
 from debug import debug
@@ -24,6 +24,7 @@ class Level:
 		self.exit_cover_sprites = pygame.sprite.Group()
 		self.transition_sprites = pygame.sprite.Group()
 		self.interactable_sprites = pygame.sprite.Group()
+		self.dialogue_sprites = pygame.sprite.Group()
 
 		# player stats
 		self.max_stats = player_stats
@@ -39,6 +40,9 @@ class Level:
 		self.blackout_direction = -1
 		self.blackout_speed = 20
 
+		# dialogue
+		self.dialogue_tree = None
+
 		# create sprites based on tiled csv
 		self.create_map(self.max_stats, self.current_stats)
 
@@ -47,6 +51,9 @@ class Level:
 
 		# pause screen
 		self.game_paused = False
+
+		# game state
+		self.game_state = 'start'
 		
 
 	# create sprites based on map from tiled
@@ -114,14 +121,17 @@ class Level:
 							Prop((x,y),[self.all_sprites, self.constraints_sprites], surface)
 						elif layer == 'mob':
 							if col == '1':
+								# orc
 								Enemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'orc', (x,y), self.damage_player, self.add_exp)
 							if col == '2':
+								# skel mage moving horizontal
 								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'horizontal', self.create_enemy_projectile, self.add_exp)
 							if col == '4':
+								# skel mage moving vertical
 								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'vertical', self.create_enemy_projectile, self.add_exp)
 							if col == '5':
 								# tutorial guide spawn here
-								pass
+								Guide([self.all_sprites, self.visible_sprites, self.obstacle_sprites, self.dialogue_sprites], self.obstacle_sprites, (x,y))
 
 		# do this inside create map so it updates the player exp stats between dun rooms
 		self.level_up = LevelUp(self.player)
@@ -179,13 +189,22 @@ class Level:
 		self.player.exp += amount
 
 	# level up
-
 	def toggle_upgrade(self):
 		self.game_paused = not self.game_paused
 
-	def upgrade(self):
-		pass
+	# dialogue
+	def dialogue_check(self):
+		for npc in self.dialogue_sprites:
+			if check_dialogue_connection(self.player, npc):
+				# block player
+				self.player.block()
+				# create dialogue
+				print('dialogue')
+				self.create_dialogue(npc)
 
+	
+	def create_dialogue(self, npc):
+		self.dialogue_tree = DialogueTree(npc, self.player, self.visible_sprites, FONT, FONT_SIZE)
 
 	# enemy attack
 	def create_enemy_projectile(self, enemy_source):
@@ -196,6 +215,10 @@ class Level:
 			self.player.health -= damage_amount
 			self.player.player_can_be_hit = False
 			self.player.last_hit_time = pygame.time.get_ticks()
+
+	def check_player_death(self):
+		if self.player.health <= 0:
+			self.game_state = 'dead'
 
 	# update and draw everything. Custom offset_draw method to allow camera offset. Order matters, further down is drawn on top
 	def run(self):
@@ -216,8 +239,16 @@ class Level:
 		self.exit_check()
 		self.transition_check()
 
-		# screen blackout for transition, MUST be last
+		# dialogue
+		if self.dialogue_tree:
+			self.dialogue_tree.update()
+
+
+		# screen blackout for transition, MUST be last of the drawings
 		self.blackout_screen()
+
+		# player dead screen
+		self.check_player_death()
 
 # Finds the vector distance of the player from the centre point of the window, and takes that offset away from each sprite so player stays central in camera
 # also adds y sorting of sprites, so the sprite that is below is in front (allows player to stand behind or in front of props)
@@ -298,6 +329,10 @@ class Camera(pygame.sprite.Group):
 			if isinstance(sprite, Player):
 				sprite_offset = sprite.rect.center - self.offset - offset_fix - player_offset_fix
 			elif isinstance(sprite, Enemy):
+				sprite_offset = sprite.rect.center - self.offset - offset_fix - player_offset_fix
+			elif isinstance(sprite, PatrolEnemy):
+				sprite_offset = sprite.rect.center - self.offset - offset_fix - player_offset_fix
+			elif isinstance(sprite, Guide):
 				sprite_offset = sprite.rect.center - self.offset - offset_fix - player_offset_fix
 			else:
 				sprite_offset = sprite.rect.center - self.offset - offset_fix
