@@ -32,7 +32,7 @@ class EnemyCharacter(Character):
         self.rect_collision = self.rect.inflate(-8, -16)
 
         self.enemy_damaged_audio = pygame.mixer.Sound('./audio/hit.wav')
-        self.enemy_damaged_audio.set_volume(0.5)
+        self.enemy_damaged_audio.set_volume(0.2)
 
 # orc
 class Enemy(EnemyCharacter):
@@ -52,7 +52,7 @@ class Enemy(EnemyCharacter):
         # enemy atacked
         self.can_be_attacked = True
         self.last_hit_time = None
-        self.invincible_duration = 500
+        self.invincible_duration = 400
         self.enemy_hit_image = png_collection(enemy_data[enemy_type]['hit_graphics'])[0]
         self.add_exp = add_exp
     

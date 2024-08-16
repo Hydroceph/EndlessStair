@@ -14,6 +14,8 @@ class Player(Character):
 		self.image = pygame.transform.scale_by(self.image, 3)
 		self.rect = self.image.get_rect(topleft = pos)
 		self.rect_collision = self.rect.inflate(-15, -30)
+		self.death_frame_index = 0
+		self.death_animation_speed = 0.1
 
 		# graphical variables
 		self.player_graphics = {
@@ -124,12 +126,12 @@ class Player(Character):
 		self.rect = self.image.get_rect(center = self.rect_collision.center)
             
 	def death_animate(self):
-		self.frame_index += self.animation_speed
+		self.death_frame_index += self.death_animation_speed
 		animation = self.player_graphics['Wiz_Death']
-		if self.frame_index > len(animation):
-			self.frame_index = 0
+		if self.death_frame_index > len(animation):
+			self.death_frame_index = 0
 			self.is_dead = 1
-		self.image = animation[int(self.frame_index)]
+		self.image = animation[int(self.death_frame_index)]
 		self.image = pygame.transform.scale_by(self.image, 3)
 		self.rect = self.image.get_rect(center = self.rect_collision.center)
 
