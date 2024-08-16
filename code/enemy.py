@@ -155,7 +155,6 @@ class Enemy(EnemyCharacter):
         self.enemy_attack_cooldown()
         self.check_health()
 
-
 # skel mage
 class PatrolEnemy(Enemy):
     def __init__(self, groups, obstacle_sprites, enemy_type, pos, damage_player, constraints_sprites, patrol_direction, create_enemy_projectile, add_exp):
@@ -208,9 +207,6 @@ class PatrolEnemy(Enemy):
         super().update()
         self.constraints_reverse()
         self.shoot_player()
-
-
-
 
 
 # patrol enemy attack

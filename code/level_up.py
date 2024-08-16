@@ -3,7 +3,6 @@ from game_data import FONT, FONT_SIZE, BAR_BACKGROUND_COLOUR, png_collection
 
 class LevelUp:
     def __init__(self, player):
-        
         self.display_surface = pygame.display.get_surface()
         self.player = player
         self.stats_names = ['health', 'attack', 'speed']
@@ -51,7 +50,6 @@ class LevelUp:
                 elif self.stats_choice == 2:
                     self.player.speed += 1
                     self.player.exp -= 100
-
 
     def choice_cooldown(self):
         if not self.can_change_choice:

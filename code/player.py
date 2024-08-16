@@ -133,7 +133,6 @@ class Player(Character):
 		self.image = pygame.transform.scale_by(self.image, 3)
 		self.rect = self.image.get_rect(center = self.rect_collision.center)
 
-
 	def attack_cooldown(self):
 		current_time = pygame.time.get_ticks()
 
@@ -176,13 +175,7 @@ class Player(Character):
 		self.animate()
 		
 
-
-
-
-
-
 # player weapons
-
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, player, groups, weapontype, offset_fix_x = 16, offset_fix_y = 0):
         super().__init__(groups)
@@ -239,11 +232,6 @@ class CQCWeapon(Weapon):
         else:
             self.image = pygame.transform.rotozoom(self.weapon_surface, ((mouse_angle - 90) * -1), 1)
             self.image = pygame.transform.flip(self.image, True, False)
-
-
-
-
-
 
 
 # player attack

@@ -42,7 +42,6 @@ class GUI:
         # exp text
         self.display_surface.blit(exp_surface, exp_rectangle)
 
-
     def display(self, player):
         self.show_bar_portion(player.health, player.stats['health'], self.hp_bar_rect, HEALTH_COLOUR)
 

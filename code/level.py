@@ -54,7 +54,6 @@ class Level:
 		# game state
 		self.game_state = 'start'
 		
-
 	# create sprites based on map from tiled
 	def create_map(self, max_stats, current_stats):
 		# clear the map, so can be used in transitions to next level
@@ -200,7 +199,6 @@ class Level:
 				# create dialogue
 				self.create_dialogue(npc)
 
-	
 	def create_dialogue(self, npc):
 		self.dialogue_tree = DialogueTree(npc, self.player, self.visible_sprites, FONT, FONT_SIZE)
 
@@ -252,8 +250,6 @@ class Level:
 
 		# screen blackout for transition, MUST be last of the drawings
 		self.blackout_screen()
-
-
 
 # Finds the vector distance of the player from the centre point of the window, and takes that offset away from each sprite so player stays central in camera
 # also adds y sorting of sprites, so the sprite that is below is in front (allows player to stand behind or in front of props)

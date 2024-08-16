@@ -50,7 +50,6 @@ class Guide(Character):
 		self.move(self.speed)
 		self.animate()
 
-
 def check_dialogue_connection(player, npc_to_check, radius = 100, tolerance = 30):
 	relative_position = pygame.math.Vector2(npc_to_check.rect.center) - pygame.math.Vector2(player.rect.center)
 	if relative_position.length() < radius: # if within the radius
@@ -97,8 +96,6 @@ class DialogueTree:
 	def update(self):
 		self.input()
 			
-
-
 class DialogueSprite(pygame.sprite.Sprite):
 	def __init__(self, message, npc, groups, font):
 		super().__init__(groups)
