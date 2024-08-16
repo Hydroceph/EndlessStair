@@ -79,7 +79,6 @@ class DialogueTree:
 
 		if self.key_can_be_pressed:
 			if keys[pygame.K_g]:
-				print('hello')
 				self.current_dialogue.kill()
 
 				self.dialogue_index += 1

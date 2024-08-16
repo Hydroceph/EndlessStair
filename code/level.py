@@ -6,7 +6,6 @@ from game_data import TILESIZE, WIDTH, HEIGHT, FONT, FONT_SIZE, FOG_COLOUR, dung
 from npc import Prop,  TransitionSprite, Guide, check_dialogue_connection, DialogueTree
 from enemy import Enemy, PatrolEnemy, EnemyProjectile
 from player import Player, Projectile, Melee, StaticWeapon, CQCWeapon
-from debug import debug
 from gui import GUI
 from level_up import LevelUp
 
@@ -199,7 +198,6 @@ class Level:
 				# block player
 				self.player.block()
 				# create dialogue
-				print('dialogue')
 				self.create_dialogue(npc)
 
 	
@@ -218,17 +216,25 @@ class Level:
 
 	def check_player_death(self):
 		if self.player.health <= 0:
-			self.game_state = 'dead'
+			self.game_state = 'dying'
 
-	# update and draw everything. Custom offset_draw method to allow camera offset. Order matters, further down is drawn on top
+	# update and draw everything. Custom offset_draw method to allow camera offset. Order matters, further down is drawn on top, and matter for logic
 	def run(self):
 		# drawing
 		self.visible_sprites.offset_draw(self.player, self.transition_target)
 		self.gui.display(self.player)
 
+		# player dead screen - must be above setting game_state to dead or keeps resetting to dying
+		self.check_player_death()
+
 		# check if display upgrade screen or not. If upgrading, pause everything else on the screen whilst in upgrade menu
 		if self.game_paused == True:
 			self.level_up.display_level_up()
+		elif self.game_state == 'dying':
+			if self.player.is_dead == 0:
+				self.player.death_animate()
+			else:
+				self.game_state = 'dead'
 		else:
 			# sprite updates
 			self.visible_sprites.update()
@@ -247,8 +253,7 @@ class Level:
 		# screen blackout for transition, MUST be last of the drawings
 		self.blackout_screen()
 
-		# player dead screen
-		self.check_player_death()
+
 
 # Finds the vector distance of the player from the centre point of the window, and takes that offset away from each sprite so player stays central in camera
 # also adds y sorting of sprites, so the sprite that is below is in front (allows player to stand behind or in front of props)

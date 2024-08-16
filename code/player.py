@@ -9,7 +9,6 @@ from math import atan2, degrees
 class Player(Character):
 	def __init__(self, pos, groups, obstacle_sprites, interactable_sprites, create_projectile, create_melee, max_stats, current_stats, exp):
 		super().__init__(groups)
-
 		# sprite initial creation
 		self.image = pygame.image.load('./graphics/underworld/Heroes/Wizzard/Idle/collection/Idle-Sheet-1.png').convert_alpha()
 		self.image = pygame.transform.scale_by(self.image, 3)
@@ -20,7 +19,8 @@ class Player(Character):
 		self.player_graphics = {
 			'Wiz_Idle': png_collection('./graphics/underworld/Heroes/Wizzard/Idle/collection'),
 			'Wiz_Run': png_collection('./graphics/underworld/Heroes/Wizzard/Run/collection'),
-			'Wiz_Hit': png_collection('./graphics/underworld/Heroes/Wizzard/Death/collection')
+			'Wiz_Hit': png_collection('./graphics/underworld/Heroes/Wizzard/Death/collection'),
+            'Wiz_Death': png_collection('./graphics/underworld/Heroes/Wizzard/Death/collection')
 		}
 		self.status = 'right'
 		self.hero_type = 'Wiz'
@@ -52,6 +52,8 @@ class Player(Character):
 		self.last_hit_time = None
 		self.invulnerable_time = 420
 		
+		# death animation
+		self.is_dead = 0
 
 	def input(self):
 		# checking for all inputs, using wasd for movement
@@ -93,7 +95,6 @@ class Player(Character):
 			self.last_sec_attack_time = pygame.time.get_ticks()
 
 	def action_status(self):
-
 		# idle - makes it right_idle or left_idle, which can then be used to flip image so player looks left or right as needed
 		if self.direction.x == 0 and self.direction.y == 0:
 			if 'idle' in self.status:
@@ -114,13 +115,24 @@ class Player(Character):
 		self.image = pygame.transform.scale_by(self.image, 3)
 
 		if self.player_can_be_hit == False:
-			self.attacked_image = self.player_graphics[self.hero_type + '_Hit'][0]
+			self.attacked_image = self.player_graphics[self.hero_type + '_Hit'][1]
 			self.attacked_image = pygame.transform.scale_by(self.attacked_image, 3)
 			self.image = self.attacked_image
 
 		if 'left' in self.status:
 			self.image = pygame.transform.flip(self.image,True,False)
 		self.rect = self.image.get_rect(center = self.rect_collision.center)
+            
+	def death_animate(self):
+		self.frame_index += self.animation_speed
+		animation = self.player_graphics['Wiz_Death']
+		if self.frame_index > len(animation):
+			self.frame_index = 0
+			self.is_dead = 1
+		self.image = animation[int(self.frame_index)]
+		self.image = pygame.transform.scale_by(self.image, 3)
+		self.rect = self.image.get_rect(center = self.rect_collision.center)
+
 
 	def attack_cooldown(self):
 		current_time = pygame.time.get_ticks()
