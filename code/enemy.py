@@ -31,8 +31,10 @@ class EnemyCharacter(Character):
         self.rect = self.image.get_rect(topleft = pos)
         self.rect_collision = self.rect.inflate(-8, -16)
 
-# orc
+        self.enemy_damaged_audio = pygame.mixer.Sound('./audio/hit.wav')
+        self.enemy_damaged_audio.set_volume(0.5)
 
+# orc
 class Enemy(EnemyCharacter):
     def __init__(self, groups, obstacle_sprites, enemy_type, pos, damage_player, add_exp):
         super().__init__(groups, enemy_type, pos)
@@ -50,7 +52,7 @@ class Enemy(EnemyCharacter):
         # enemy atacked
         self.can_be_attacked = True
         self.last_hit_time = None
-        self.invincible_duration = 300
+        self.invincible_duration = 500
         self.enemy_hit_image = png_collection(enemy_data[enemy_type]['hit_graphics'])[0]
         self.add_exp = add_exp
     
@@ -86,6 +88,7 @@ class Enemy(EnemyCharacter):
 
     def get_damage(self, player, attack_type):
         if self.can_be_attacked:
+            self.enemy_damaged_audio.play()
             if attack_type == 'magic':
                 self.health -= player.get_weapon_damage()[0]
             if attack_type == 'melee':
@@ -154,7 +157,6 @@ class Enemy(EnemyCharacter):
 
 
 # skel mage
-
 class PatrolEnemy(Enemy):
     def __init__(self, groups, obstacle_sprites, enemy_type, pos, damage_player, constraints_sprites, patrol_direction, create_enemy_projectile, add_exp):
         super().__init__(groups, obstacle_sprites, enemy_type, pos, damage_player, add_exp)
@@ -212,7 +214,6 @@ class PatrolEnemy(Enemy):
 
 
 # patrol enemy attack
-
 class EnemyProjectile(pygame.sprite.Sprite):
     def __init__(self, player, groups, obstacle_sprites, destructable_sprites, enemy_source, damage_player, spawn_distance = 75):
         super().__init__(groups)

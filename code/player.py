@@ -270,6 +270,10 @@ class Projectile(pygame.sprite.Sprite):
         self.destructable_sprites = destructable_sprites
         self.damageable_sprites = damageable_sprites
 
+        self.magic_sound = pygame.mixer.Sound('./audio/fireball.wav')
+        self.magic_sound.set_volume(0.3)
+        self.magic_sound.play()
+
     def animate(self):
         self.frame_index += self.animation_speed
         animation = self.image_list
@@ -311,6 +315,10 @@ class Melee(Projectile):
         self.duration = 400
         self.attack_time = pygame.time.get_ticks()
         self.animation_speed = 0.3
+
+        self.stab_sound = pygame.mixer.Sound('./audio/sword.wav')
+        self.stab_sound.set_volume(0.3)
+        self.stab_sound.play()
 
     def attack_duration(self):
         current_time = pygame.time.get_ticks()

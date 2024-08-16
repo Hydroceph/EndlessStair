@@ -1,3 +1,6 @@
+
+"""wasd to move, left shift and spacebar for damage, t to start dialogue, g to continue dialogue, y to open upgrade menu, h to start etc."""
+
 import pygame, sys
 from game_data import WIDTH, HEIGHT, FPS
 from level import Level
