@@ -170,8 +170,9 @@ attack_animation_data = {
 
 # enemy data
 enemy_data = {
-	'orc': {'health': 100,'exp': 50,'damage': 20,'attack_type': 'slash', 'speed': 3, 'resistance': 3, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Run/collection', 'hit_graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Death/collection' },
-    'skel_mage': {'health': 20,'exp': 50,'damage': 20,'attack_type': 'fireball', 'speed': 3, 'resistance': 1, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Skeleton Crew/Skeleton - Mage/Run/collection', 'hit_graphics': './graphics/underworld/Enemy/Skeleton Crew/Skeleton - Mage/Death/collection' }
+	'orc': {'health': 100,'exp': 50,'damage': 20,'attack_type': 'slash', 'speed': 3, 'resistance': 3, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Run/collection', 'hit_graphics': './graphics/underworld/Enemy/Orc Crew/Orc/Death/collection'},
+    'skel_mage': {'health': 10,'exp': 50,'damage': 10,'attack_type': 'fireball', 'speed': 3, 'resistance': 1, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Enemy/Skeleton Crew/Skeleton - Mage/Run/collection', 'hit_graphics': './graphics/underworld/Enemy/Skeleton Crew/Skeleton - Mage/Death/collection'},
+    'rogue': {'health': 300,'exp': 50,'damage': 30,'attack_type': 'slash', 'speed': 3, 'resistance': 1, 'attack_radius': 80, 'notice_radius': 360, 'graphics': './graphics/underworld/Heroes/Rogue/Run/collection', 'hit_graphics': './graphics/underworld/Heroes/Rogue/Death/collection'}
 }
 
 

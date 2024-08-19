@@ -1,5 +1,10 @@
 
-"""wasd to move, left shift and spacebar for damage, t to start dialogue, g to continue dialogue, y to open upgrade menu, h to start"""
+"""
+
+wasd to move, left shift and spacebar for damage, t to start dialogue, g to continue dialogue,
+y to open upgrade menu, h to start, p for pathfinding create new path, l for lighting toggle
+
+"""
 
 import pygame, sys
 from game_data import WIDTH, HEIGHT, FPS
@@ -64,6 +69,10 @@ class Game:
 							self.level.game_state = 'running'
 						elif self.level.game_state == 'dead':
 							self.level = Level()
+					elif event.key == pygame.K_p:
+						self.level.run_pathfinder()
+					elif event.key == pygame.K_l:
+						self.level.light_switch()
 
 			if self.level.game_state == 'start':
 				self.screen.fill((0,0,0))

@@ -8,6 +8,7 @@ from enemy import Enemy, PatrolEnemy, EnemyProjectile
 from player import Player, Projectile, Melee, StaticWeapon, CQCWeapon
 from gui import GUI
 from level_up import LevelUp
+from my_boss_pathfinding import Pathfinder, PathfindingBoss
 
 class Level:
 	def __init__(self):
@@ -48,11 +49,19 @@ class Level:
 		# GUI
 		self.gui = GUI()
 
-		# pause screen
+		# pause screen, for upgrade menu
 		self.game_paused = False
 
 		# game state
 		self.game_state = 'start'
+
+		# fow lighting
+		self.fog = 1
+
+		# pathfinding
+		self.offset = pygame.math.Vector2()
+		self.midpoint_x = self.display_surface.get_size()[0] // 2
+		self.midpoint_y = self.display_surface.get_size()[1] // 2
 		
 	# create sprites based on map from tiled
 	def create_map(self, max_stats, current_stats):
@@ -121,18 +130,25 @@ class Level:
 							if col == '1':
 								# orc
 								Enemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'orc', (x,y), self.damage_player, self.add_exp)
-							if col == '2':
+							elif col == '2':
 								# skel mage moving horizontal
 								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'horizontal', self.create_enemy_projectile, self.add_exp)
-							if col == '4':
+							elif col == '4':
 								# skel mage moving vertical
 								PatrolEnemy([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'skel_mage', (x,y), self.damage_player, self.constraints_sprites, 'vertical', self.create_enemy_projectile, self.add_exp)
-							if col == '5':
+							elif col == '5':
 								# tutorial guide spawn here
 								Guide([self.all_sprites, self.visible_sprites, self.obstacle_sprites, self.dialogue_sprites], self.obstacle_sprites, (x,y))
+							elif col == '6':
+								# pathfinding boss example
+								self.pathfinding_boss = PathfindingBoss([self.all_sprites, self.visible_sprites], 'rogue', (x,y))
+
 
 		# do this inside create map so it updates the player exp stats between dun rooms
 		self.level_up = LevelUp(self.player)
+
+		# pathfinding
+		self.pathfinder = Pathfinder(self.pathfinding_boss, self.player)
 
 	# level transitions
 	def transition_check(self):
@@ -167,6 +183,10 @@ class Level:
 		self.max_stats = self.player.stats
 		self.current_stats = {'health': self.player.health, 'attack': self.player.stats['attack'], 'speed': self.player.speed}
 		self.exp = self.player.exp
+
+	# fow lighting switch
+	def light_switch(self):
+		self.fog *= -1
 
 	# player attack
 	def create_projectile(self):
@@ -216,10 +236,22 @@ class Level:
 		if self.player.health <= 0:
 			self.game_state = 'dying'
 
+	# pathfinding
+	def run_pathfinder(self):
+		self.path = self.pathfinder.create_path()
+		self.offset.x = self.player.rect.centerx - self.midpoint_x
+		self.offset.y = self.player.rect.centery - self.midpoint_y
+		self.pathfinding_boss.get_path(self.path, self.offset)
+
+	def draw_pathfinder_line(self, displaysurface):
+		self.offset.x = self.player.rect.centerx - self.midpoint_x
+		self.offset.y = self.player.rect.centery - self.midpoint_y
+		self.pathfinder.draw_path(displaysurface, self.offset)
+
 	# update and draw everything. Custom offset_draw method to allow camera offset. Order matters, further down is drawn on top, and matter for logic
 	def run(self):
 		# drawing
-		self.visible_sprites.offset_draw(self.player, self.transition_target)
+		self.visible_sprites.offset_draw(self.player, self.transition_target, self.fog)
 		self.gui.display(self.player)
 
 		# player dead screen - must be above setting game_state to dead or keeps resetting to dying
@@ -247,6 +279,8 @@ class Level:
 		if self.dialogue_tree:
 			self.dialogue_tree.update()
 
+		# pathfinding
+		self.draw_pathfinder_line(self.display_surface)
 
 		# screen blackout for transition, MUST be last of the drawings
 		self.blackout_screen()
@@ -285,7 +319,7 @@ class Camera(pygame.sprite.Group):
 		self.fow_surf.blit(self.fow_light_surf, self.fow_light_rect)
 		self.fog = 1
 
-	def offset_draw(self, player, transition_target):
+	def offset_draw(self, player, transition_target, fog):
 
 		self.floor_surface = self.floor_surface_list[transition_target]
 		self.floor_surface = pygame.transform.scale(self.floor_surface, (self.floor_surface.get_width() * 4, self.floor_surface.get_height() * 4))
@@ -294,6 +328,8 @@ class Camera(pygame.sprite.Group):
 		self.floor_light_surface = self.floor_light_surface_list[transition_target]
 		self.floor_light_surface = pygame.transform.scale(self.floor_light_surface, (self.floor_light_surface.get_width() * 4, self.floor_light_surface.get_height() * 4))
 		self.floor_light_rect = self.floor_light_surface.get_rect(topleft = (0,0))
+
+		self.fog = fog
 
 
 		# find player distance from midpoint of screen
@@ -347,7 +383,7 @@ class Camera(pygame.sprite.Group):
 		# drawing the FOW
 		if self.fog == 1:
 			self.display_surface.blit(self.fow_surf, (0,0), special_flags = pygame.BLEND_MULT)
-	
+
 	# so that you're not passing player into every single sprite, which is why you have all this seperately
 	def enemy_update(self, player):
 		enemy_sprites = []
