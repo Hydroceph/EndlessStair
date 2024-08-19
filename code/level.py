@@ -141,14 +141,12 @@ class Level:
 								Guide([self.all_sprites, self.visible_sprites, self.obstacle_sprites, self.dialogue_sprites], self.obstacle_sprites, (x,y))
 							elif col == '6':
 								# pathfinding boss example
-								self.pathfinding_boss = PathfindingBoss([self.all_sprites, self.visible_sprites], 'rogue', (x,y))
+								self.pathfinding_boss = PathfindingBoss([self.all_sprites, self.visible_sprites, self.damageable_sprites],self.obstacle_sprites, 'rogue', (x,y), self.damage_player, self.add_exp)
+								self.pathfinder = Pathfinder(self.pathfinding_boss, self.player)
 
 
 		# do this inside create map so it updates the player exp stats between dun rooms
 		self.level_up = LevelUp(self.player)
-
-		# pathfinding
-		self.pathfinder = Pathfinder(self.pathfinding_boss, self.player)
 
 	# level transitions
 	def transition_check(self):
@@ -280,7 +278,8 @@ class Level:
 			self.dialogue_tree.update()
 
 		# pathfinding
-		self.draw_pathfinder_line(self.display_surface)
+		if hasattr(self, 'pathfinder') and self.pathfinder:
+			self.draw_pathfinder_line(self.display_surface)
 
 		# screen blackout for transition, MUST be last of the drawings
 		self.blackout_screen()
