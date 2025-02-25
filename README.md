@@ -27,5 +27,4 @@ Controls are:
 
 # Please only press ‘p’ when in the final room with the boss enemy, or an error will occur.
 
-# Please only press ‘t’ to start dialogue once, or a permanent dialogue box will appear until game
-restart.
+# Please only press ‘t’ to start dialogue once, or a permanent dialogue box will appear until game restart.
